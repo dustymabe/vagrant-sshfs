@@ -1,0 +1,39 @@
+en:
+  vagrant:
+    sshfs:
+      actions:
+        installing: Installing SSHFS client...
+        mounting: Mounting SSHFS shared folders...
+        mounting_folder: |-
+          Mounting folder via SSHFS: %{hostpath} => %{guestpath}
+      ask:
+        prompt_for_password: |-
+          SSHFS password for '%{username}':
+      info:
+        detected_host_ip: |-
+          Detected host IP address is '%{ip}'
+        already_mounted: |-
+          The folder %{folder} in the guest already mounted.
+      errors:
+        communicator_not_ready: |-
+          The machine is reporting that it is not ready to communicate via ssh. Verify
+          this machine is properly running.
+        sshfs_not_in_guest: |-
+          The necessary SSHFS software is not installed in the guest. 
+        mount_failed: |-
+          Mounting SSHFS shared folders failed. This is most often caused by either
+          an SSH Daemon not running on the host or invalid credentials being provided.
+          Please make sure an SSH daemon is running on the host and proper credentials 
+          were provided to be able to authenticate via SSH.
+
+          The command and output are:
+
+          %{command}
+
+          Stdout from the command:
+
+          %{stdout}
+
+          Stderr from the command:
+
+          %{stderr}
