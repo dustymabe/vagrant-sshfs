@@ -122,6 +122,17 @@ provided on the command line. They are described below:
       a password by setting this to 'true'. Alternatively the user can
       deny Vagrant from ever prompting for the password by setting
       this to 'false'.
+- `disabled`
+    - If set to 'true', ignore this folder and don't mount it.
+
+Here is an example of how to use the options:
+
+```
+config.vm.synced_folder "/path/on/host", "/path/on/guest", 
+    type: "sshfs",
+    ssh_username: "user1",
+    ssh_port: "22"
+```
 
 ## Development
 
