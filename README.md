@@ -112,10 +112,18 @@ provided on the command line. They are described below:
       deny Vagrant from ever prompting for the password by setting
       this to 'false'.
 
-## Contributing
+## Development
 
-TODO finish this section: 
-For local development of this plugin run...
+For local development of this plugin here is an example of how to build 
+and install this plugin on your local machine:
 
-
-
+```
+$ rake build
+vagrant-sshfs 0.1.0 built to pkg/vagrant-sshfs-0.1.0.gem.
+$ mkdir -p /tmp/gems/gems
+$ cp pkg/vagrant-sshfs-0.1.0.gem /tmp/gems/gems/                                                                                                          
+$ pushd /tmp/gems/
+$ gem generate_index
+$ popd
+$ vagrant plugin install vagrant-sshfs --plugin-source file:///tmp/gems/
+```
