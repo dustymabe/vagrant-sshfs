@@ -23,6 +23,17 @@ is a guide for intalling the cygwin SSH daemon on Windows.
 In order to authenticate back to the host daemon you must either
 provide your password or use SSH keys and agent forwarding.
 
+## History
+
+The inspiration for this plugin came from [Fabio Kreusch](https://github.com/fabiokr)
+and his [code](https://github.com/fabiokr/vagrant-sshfs) for the original 
+vagrant-sshfs Vagrant plugin. The goal of this plugin (as opposed to
+the old implementation) is to implement SSHFS as a synced folder
+plugin just like the other synced folder plugins (NFS/RSYNC/SMB/VirtualBox).
+
+This plugin was developed mainly by copying the code from the NFS synced 
+folder plugin from the Vagrant core code and molding it to fit SSHFS.
+
 ## Getting Started
 
 In order to use this synced folder implementation perform the
