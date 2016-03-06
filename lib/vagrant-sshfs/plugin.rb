@@ -45,6 +45,16 @@ module VagrantPlugins
         VagrantPlugins::GuestFedora::Cap::SSHFSClient
       end
 
+      guest_capability("debian", "sshfs_installed") do
+        require_relative "cap/debian/sshfs_client"
+        VagrantPlugins::GuestDebian::Cap::SSHFSClient
+      end
+
+      guest_capability("debian", "sshfs_install") do
+        require_relative "cap/debian/sshfs_client"
+        VagrantPlugins::GuestDebian::Cap::SSHFSClient
+      end
+
     end
   end
 end
