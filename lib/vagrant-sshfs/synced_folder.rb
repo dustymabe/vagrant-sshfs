@@ -42,16 +42,23 @@ module VagrantPlugins
           end
         end
 
-        # Find out the host info and auth info for each folder
         folders.each do |id, opts|
+
+          # If already mounted then there is nothing to do
+          if machine.guest.capability(:sshfs_is_folder_mounted, opts)
+            machine.ui.info(
+              I18n.t("vagrant.sshfs.info.already_mounted",
+                     folder: opts[:guestpath]))
+            next
+          end
+
+          # Find out the host info and auth info for each folder
           get_host_info(machine, opts)
           get_auth_info(machine, opts)
-        end
 
-        # Mount each of them
-        machine.ui.info(I18n.t("vagrant.sshfs.actions.mounting"))
-        folders.each do |id, opts|
-            machine.guest.capability(:sshfs_mount_folder, opts)
+          # Do the mount
+          machine.ui.info(I18n.t("vagrant.sshfs.actions.mounting"))
+          machine.guest.capability(:sshfs_mount_folder, opts)
         end
       end
 

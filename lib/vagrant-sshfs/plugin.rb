@@ -25,6 +25,11 @@ module VagrantPlugins
         VagrantPlugins::GuestLinux::Cap::MountSSHFS
       end
 
+      guest_capability("linux", "sshfs_is_folder_mounted") do
+        require_relative "cap/linux/sshfs_mount"
+        VagrantPlugins::GuestLinux::Cap::MountSSHFS
+      end
+
       guest_capability("redhat", "sshfs_installed") do
         require_relative "cap/redhat/sshfs_client"
         VagrantPlugins::GuestRedHat::Cap::SSHFSClient

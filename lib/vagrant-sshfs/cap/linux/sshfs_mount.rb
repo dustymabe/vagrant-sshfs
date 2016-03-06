@@ -22,13 +22,6 @@ module VagrantPlugins
           expanded_guest_path = machine.guest.capability(
             :shell_expand_guest_path, opts[:guestpath])
 
-          # If already mounted then there is nothing to do
-          if sshfs_is_folder_mounted?(machine, expanded_guest_path)
-            machine.ui.info(I18n.t("vagrant.sshfs.info.already_mounted",
-                                   folder: expanded_guest_path))
-            return
-          end
-
           # Do the actual creating and mounting
           machine.communicate.sudo("mkdir -p #{expanded_guest_path}")
 
@@ -74,14 +67,15 @@ module VagrantPlugins
           end
         end
 
-        protected
-
-        def self.sshfs_is_folder_mounted?(machine, guestpath)
+        def self.sshfs_is_folder_mounted(machine, opts)
           mounted = false
+          # expand the guest path so we can handle things like "~/vagrant"
+          expanded_guest_path = machine.guest.capability(
+            :shell_expand_guest_path, opts[:guestpath])
           machine.communicate.execute("cat /proc/mounts") do |type, data|
             if type == :stdout
               data.each_line do |line|
-                if line.split()[1] == guestpath
+                if line.split()[1] == expanded_guest_path
                   mounted = true
                   break
                 end
