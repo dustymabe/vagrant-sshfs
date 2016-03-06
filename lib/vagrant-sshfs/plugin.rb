@@ -55,6 +55,16 @@ module VagrantPlugins
         VagrantPlugins::GuestDebian::Cap::SSHFSClient
       end
 
+      guest_capability("arch", "sshfs_installed") do
+        require_relative "cap/arch/sshfs_client"
+        VagrantPlugins::GuestArch::Cap::SSHFSClient
+      end
+
+      guest_capability("arch", "sshfs_install") do
+        require_relative "cap/arch/sshfs_client"
+        VagrantPlugins::GuestArch::Cap::SSHFSClient
+      end
+
     end
   end
 end

@@ -20,6 +20,13 @@ en:
           this machine is properly running.
         sshfs_not_in_guest: |-
           The necessary SSHFS software is not installed in the guest. 
+        install_failed_arch: |-
+          The install of the sshfs client software failed. On Arch this is most likely
+          because the package lists are not up to date [1] and partial upgrades are not
+          supported [2]. Please update your Arch system or install SSHFS manually.
+
+          [1] https://wiki.archlinux.org/index.php/pacman#Packages_cannot_be_retrieved_on_installation
+          [2] https://wiki.archlinux.org/index.php/System_maintenance#Partial_upgrades_are_unsupported
         mount_failed: |-
           Mounting SSHFS shared folders failed. This is most often caused by either
           an SSH Daemon not running on the host or invalid credentials being provided.

@@ -10,6 +10,10 @@ module VagrantPlugins
         error_key(:mount_failed)
       end
 
+      class SSHFSInstallFailed < SSHFSError
+        error_key(:install_failed)
+      end
+
       class SSHFSNotInstalledInGuest < SSHFSError
         error_key(:sshfs_not_in_guest)
       end
