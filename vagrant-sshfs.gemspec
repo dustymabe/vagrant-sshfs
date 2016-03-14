@@ -8,7 +8,10 @@ Gem::Specification.new do |spec|
   spec.version       = VagrantPlugins::SyncedFolderSSHFS::VERSION
   spec.authors       = ["Dusty Mabe"]
   spec.email         = ["dusty@dustymabe.com"]
-  spec.description   = "A Vagrant plugin that mounts folders via SSHFS."
+  spec.description   = """
+    A Vagrant synced folder plugin that mounts folders via SSHFS. 
+    This is the successor to Fabio Kreusch's implementation:
+    https://github.com/fabiokr/vagrant-sshfs"""
   spec.summary       = spec.description
   spec.homepage      = ""
   spec.license       = "GPL"
