@@ -56,7 +56,7 @@ the guest:
 config.vm.synced_folder "/path/on/host", "/path/on/guest", type: "sshfs"
 ```
 
-For more options that you can add see the [OPTIONS] section.
+For more options that you can add see the [Options](#options) section.
 
 ### Recommended: Using Keys and Forwarding SSH Agent
 
