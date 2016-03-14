@@ -44,7 +44,7 @@ following steps:
 In order to install the plugin simply run the following command:
 
 ```
-# vagrant plugin install vagrant-sshfs --plugin-source https://dustymabe.fedorapeople.org/gemrepo/
+# vagrant plugin install vagrant-sshfs
 ```
 
 ### Add SSHFS synced folder in Vagrantfile
