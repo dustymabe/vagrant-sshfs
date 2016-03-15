@@ -63,9 +63,12 @@ For more options that you can add see the [Options](#options) section.
 
 If you want a completely non-interactive experience you can either
 hard code your password in the Vagrantfile or you can use SSH keys.
+A few guides for setting up ssh keys and key forwarding are on Github:
+- [Key Generation](https://help.github.com/articles/generating-ssh-keys)
+- [Key Forwarding](https://developer.github.com/guides/using-ssh-agent-forwarding/)
 
-If `key1` is a key that is authorized to log in to the Vagrant host
-,meaning there is an entry for `key1` in the `~/.ssh/authorized_keys` 
+The idea is that if `key1` is a key that is authorized to log in to the 
+Vagrant host ,meaning there is an entry for `key1` in the `~/.ssh/authorized_keys` 
 file, then you should be able to do the following to have a
 non-interactive experience with SSH keys and agent forwarding:
 
