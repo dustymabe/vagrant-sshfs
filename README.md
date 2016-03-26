@@ -106,7 +106,7 @@ vagrant sshfs
 ## Options
 
 The SSHFS synced folder plugin supports a few options that can be
-provided on the command line. They are described below:
+provided in the `Vagrantfile`. They are described below:
 
 - `ssh_host`
     - The host to connect to via SSH. If not provided this will be 
