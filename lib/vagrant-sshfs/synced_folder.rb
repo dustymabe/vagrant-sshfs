@@ -6,13 +6,11 @@ require "vagrant/util/which"
 module VagrantPlugins
   module SyncedFolderSSHFS
     class SyncedFolder < Vagrant.plugin("2", :synced_folder)
-      @@vagrant_host_machine_ip
 
       def initialize(*args)
         super
 
         @logger = Log4r::Logger.new("vagrant::synced_folders::sshfs")
-        @@vagrant_host_machine_ip = nil
       end
 
       # This is called early when the synced folder is set to determine
@@ -60,10 +58,21 @@ module VagrantPlugins
             next
           end
 
-          # Find out the host info and auth info for each folder
-          get_host_info(machine, opts)
-          get_auth_info(machine, opts)
-
+          # If the synced folder entry has host information in it then
+          # assume we are doing a normal sshfs mount to a host that isn't
+          # the machine running vagrant. Rely on password/ssh keys.
+          #
+          # If not, then we are doing a slave mount and we need to
+          # make sure we can find the sftp-server and ssh execuatable
+          # files on the host.
+          if opts.has_key?(:ssh_host) and opts[:ssh_host]
+              # Check port information and find out auth info
+              check_host_port(machine, opts)
+              get_auth_info(machine, opts)
+          else
+              opts[:ssh_exe_path] = find_executable('ssh')
+              opts[:sftp_server_exe_path] = find_executable('sftp-server')
+          end
           # Do the mount
           machine.ui.info(I18n.t("vagrant.sshfs.actions.mounting"))
           machine.guest.capability(:sshfs_mount_folder, opts)
@@ -83,42 +92,12 @@ module VagrantPlugins
 
       protected
 
-      def get_host_info(machine, opts)
-        # opts - the synced folder options hash
-        # machine - 
-
-        # If the synced folder entry doesn't have host information in it then
-        # detect the vagrant host machine IP and use that
-        if not opts.has_key?(:ssh_host) or not opts[:ssh_host]
-            opts[:ssh_host] = detect_vagrant_host_ip(machine)
-        end
-
-        # If the synced folder doesn't have host port information in it 
-        # default to port 22 for ssh
-        # detect the vagrant host machine IP and use that
+      # Check if port information was provided in the options. If not,
+      # then default to port 22 for ssh
+      def check_host_port(machine, opts)
         if not opts.has_key?(:ssh_port) or not opts[:ssh_port]
             opts[:ssh_port] = '22'
         end
-      end
-
-      def detect_vagrant_host_ip(machine)
-        # Only run detection if it hasn't been run before
-        if not @@vagrant_host_machine_ip
-          # Attempt to detect host machine IP by connecting over ssh
-          # and then using the $SSH_CONNECTION env variable information to
-          # determine the vagrant host IP address
-          hostip = ''
-          machine.communicate.execute('echo $SSH_CONNECTION') do |type, data|
-            if type == :stdout
-              hostip = data.split()[0]
-            end
-          end
-          # TODO do some error checking here to make sure hostip was detected
-          machine.ui.info(I18n.t("vagrant.sshfs.info.detected_host_ip", ip: hostip))
-          @@vagrant_host_machine_ip = hostip
-        end
-        # Return the detected host IP
-        @@vagrant_host_machine_ip
       end
 
       # Function to gather authentication information (username/password)

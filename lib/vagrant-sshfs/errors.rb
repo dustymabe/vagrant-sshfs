@@ -6,8 +6,12 @@ module VagrantPlugins
         error_namespace("vagrant.sshfs.errors")
       end
 
-      class SSHFSMountFailed < SSHFSError
-        error_key(:mount_failed)
+      class SSHFSNormalMountFailed < SSHFSError
+        error_key(:normal_mount_failed)
+      end
+
+      class SSHFSSlaveMountFailed < SSHFSError
+        error_key(:slave_mount_failed)
       end
 
       class SSHFSInstallFailed < SSHFSError

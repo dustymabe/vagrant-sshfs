@@ -57,37 +57,123 @@ module VagrantPlugins
           machine.ui.info(I18n.t("vagrant.sshfs.actions.mounting_folder", 
                           hostpath: hostpath, guestpath: expanded_guest_path))
 
-          # Figure out any options
-          # TODO - Allow options override via an option
-          mount_opts = '-o StrictHostKeyChecking=no '
-          mount_opts+= '-o allow_other '
-          mount_opts+= '-o noauto_cache '
+          # Add in some sshfs options that are common to both mount methods
+          sshfs_opts = ' -o allow_other '
+          sshfs_opts+= ' -o noauto_cache '
 
-          # TODO some other options we might use in the future to help
-          # connections over low bandwidth
-          #options+= '-o kernel_cache -o Ciphers=arcfour -o big_writes -o auto_cache -o cache_timeout=115200 -o attr_timeout=115200 -o entry_timeout=1200 -o max_readahead=90000 '
-          #options+= '-o kernel_cache -o big_writes -o auto_cache -o cache_timeout=115200 -o attr_timeout=115200 -o entry_timeout=1200 -o max_readahead=90000 '
-          #options+= '-o cache_timeout=3600 '
+          # Do a normal mount only if the user provided host information
+          if opts.has_key?(:ssh_host) and opts[:ssh_host]
+            self.sshfs_normal_mount(machine, opts, sshfs_opts, hostpath, expanded_guest_path)
+          else
+            self.sshfs_slave_mount(machine, opts, sshfs_opts, hostpath, expanded_guest_path)
+          end
+        end
 
+        protected
+
+        # Perform a mount by running an sftp-server on the vagrant host 
+        # and piping stdin/stdout to sshfs running inside the guest
+        def self.sshfs_slave_mount(machine, opts, sshfs_opts, hostpath, expanded_guest_path)
+
+          sftp_server_path = opts[:sftp_server_exe_path]
+          ssh_path = opts[:ssh_exe_path]
+
+          # The sftp-server command
+          sftp_server_cmd = sftp_server_path
+
+          # The remote sshfs command that will run (in slave mode)
+          sshfs_opts+= '-o slave'
+          sshfs_cmd = "sudo -E sshfs :#{hostpath} #{expanded_guest_path}" + sshfs_opts
+
+          # The ssh command to connect to guest and then launch sshfs
+          ssh_opts = ' -o User=' + machine.ssh_info[:username]
+          ssh_opts+= ' -o Port=' + machine.ssh_info[:port].to_s
+          ssh_opts+= ' -o IdentityFile=' + machine.ssh_info[:private_key_path][0]
+          ssh_opts+= ' -o StrictHostKeyChecking=no '
+          ssh_opts+= ' -o UserKnownHostsFile=/dev/null '
+          ssh_opts+= ' -F /dev/null ' # Don't pick up options from user's config
+          ssh_cmd = ssh_path + ssh_opts + machine.ssh_info[:host]
+          ssh_cmd+= ' "' + sshfs_cmd + '"'
+
+          @@logger.debug("sftp-server cmd: #{sftp_server_cmd}")
+          @@logger.debug("ssh cmd: #{ssh_cmd}")
+
+          # Create two named pipes for communication between sftp-server and
+          # sshfs running in slave mode
+          r1, w1 = IO.pipe # reader/writer from pipe1
+          r2, w2 = IO.pipe # reader/writer from pipe2
+
+          # The way this works is by hooking up the stdin+stdout of the
+          # sftp-server process to the stdin+stdout of the sshfs process
+          # running inside the guest in slave mode. An illustration is below:
+          # 
+          #          stdout => w1      pipe1         r1 => stdin 
+          #         />------------->==============>----------->\
+          #        /                                            \
+          #        |                                            |
+          #    sftp-server (on vm host)                      sshfs (inside guest)
+          #        |                                            |
+          #        \                                            /
+          #         \<-------------<==============<-----------</
+          #          stdin <= r2        pipe2         w2 <= stdout 
+          #
+          # Wire up things appropriately and start up the processes
+          p1 = spawn(sftp_server_cmd,  :out => w2, :in => r1)
+          p2 = spawn(ssh_cmd, :out => w1, :in => r2)
+
+          # Check that the mount made it
+          mounted = false
+          for i in 0..10
+            machine.ui.info("Checking Mount..")
+            if self.sshfs_is_folder_mounted(machine, opts)
+              mounted = true
+              break
+            end
+            sleep(2)
+          end
+          if !mounted
+            Process.kill("TERM", p1) 
+            Process.kill("TERM", p2) 
+            raise VagrantPlugins::SyncedFolderSSHFS::Errors::SSHFSSlaveMountFailed
+          end
+          machine.ui.info("Folder Successfully Mounted!")
+
+          # Detach from the processes so they will keep running
+          Process.detach(p1)
+          Process.detach(p2)
+        end
+
+        # Do a normal sshfs mount in which we will ssh into the guest
+        # and then execute the sshfs command to connect the the opts[:ssh_host]
+        # and mount a folder from opts[:ssh_host] into the guest.
+        def self.sshfs_normal_mount(machine, opts, sshfs_opts, hostpath, expanded_guest_path)
+
+          # SSH connection options
+          ssh_opts = '-o StrictHostKeyChecking=no '
+
+          # Host/Port and Auth Information
           username = opts[:ssh_username]
           password = opts[:ssh_password]
           host     = opts[:ssh_host]
           port     = opts[:ssh_port]
 
+          # Add echo of password if password is being used
           echopipe = ""
           if password
             echopipe = "echo '#{password}' | "
-            mount_opts+= '-o password_stdin '
+            sshfs_opts+= '-o password_stdin '
           end
           
-          error_class = VagrantPlugins::SyncedFolderSSHFS::Errors::SSHFSMountFailed
+          # Build up the command and connect
+          error_class = VagrantPlugins::SyncedFolderSSHFS::Errors::SSHFSNormalMountFailed
           cmd = echopipe 
           cmd+= "sshfs -p #{port} "
-          cmd+= mount_opts
+          cmd+= ssh_opts
+          cmd+= sshfs_opts
           cmd+= "#{username}@#{host}:'#{hostpath}' #{expanded_guest_path}"
           retryable(on: error_class, tries: 3, sleep: 3) do
             machine.communicate.sudo(
-              cmd, error_class: error_class, error_key: :mount_failed)
+              cmd, error_class: error_class, error_key: :normal_mount_failed)
           end
         end
       end
