@@ -34,8 +34,10 @@ module VagrantPlugins
       # any existing ones.
       #
       # No return value.
-      def enable(machine, folders, sshfsopts)
-       if machine.guest.capability?(:sshfs_installed)
+      def enable(machine, folders, pluginopts)
+
+        # Check to see if sshfs software is in the guest
+        if machine.guest.capability?(:sshfs_installed)
           if !machine.guest.capability(:sshfs_installed)
             can_install = machine.guest.capability?(:sshfs_install)
             if !can_install
@@ -46,6 +48,7 @@ module VagrantPlugins
           end
         end
 
+        # Iterate through the folders and mount if needed
         folders.each do |id, opts|
 
           # If already mounted then there is nothing to do
@@ -117,9 +120,9 @@ module VagrantPlugins
         @@vagrant_host_machine_ip
       end
 
+      # Function to gather authentication information (username/password)
+      # for doing a normal sshfs mount
       def get_auth_info(machine, opts)
-        # opts - the synced folder options hash
-        # machine - 
         prompt_for_password = false
         ssh_info = machine.ssh_info
 
