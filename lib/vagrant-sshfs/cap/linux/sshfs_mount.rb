@@ -9,6 +9,24 @@ module VagrantPlugins
         extend Vagrant::Util::Retryable
         @@logger = Log4r::Logger.new("vagrant::synced_folders::sshfs_mount")
 
+        def self.sshfs_is_folder_mounted(machine, opts)
+          mounted = false
+          # expand the guest path so we can handle things like "~/vagrant"
+          expanded_guest_path = machine.guest.capability(
+            :shell_expand_guest_path, opts[:guestpath])
+          machine.communicate.execute("cat /proc/mounts") do |type, data|
+            if type == :stdout
+              data.each_line do |line|
+                if line.split()[1] == expanded_guest_path
+                  mounted = true
+                  break
+                end
+              end
+            end
+          end
+          return mounted
+        end
+
         def self.sshfs_mount_folder(machine, opts)
           # opts contains something like:
           #   { :type=>:sshfs,
@@ -68,24 +86,6 @@ module VagrantPlugins
             machine.communicate.sudo(
               cmd, error_class: error_class, error_key: :mount_failed)
           end
-        end
-
-        def self.sshfs_is_folder_mounted(machine, opts)
-          mounted = false
-          # expand the guest path so we can handle things like "~/vagrant"
-          expanded_guest_path = machine.guest.capability(
-            :shell_expand_guest_path, opts[:guestpath])
-          machine.communicate.execute("cat /proc/mounts") do |type, data|
-            if type == :stdout
-              data.each_line do |line|
-                if line.split()[1] == expanded_guest_path
-                  mounted = true
-                  break
-                end
-              end
-            end
-          end
-          return mounted
         end
       end
     end
