@@ -17,6 +17,10 @@ module VagrantPlugins
       class SSHFSNotInstalledInGuest < SSHFSError
         error_key(:sshfs_not_in_guest)
       end
+
+      class SSHFSExeNotAvailable < SSHFSError
+        error_key(:exe_not_in_host)
+      end
     end
   end
 end

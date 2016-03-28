@@ -18,6 +18,10 @@ en:
         communicator_not_ready: |-
           The machine is reporting that it is not ready to communicate via ssh. Verify
           this machine is properly running.
+        exe_not_in_host: |-
+          The '%{executable}' executable file can't be found on the host machine but
+          is required for sshfs mounting to work. Please install the software and 
+          try again.
         sshfs_not_in_guest: |-
           The necessary SSHFS software is not installed in the guest. 
         install_failed_arch: |-

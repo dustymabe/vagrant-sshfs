@@ -1,6 +1,7 @@
 require "log4r"
 
 require "vagrant/util/platform"
+require "vagrant/util/which"
 
 module VagrantPlugins
   module SyncedFolderSSHFS
@@ -155,6 +156,34 @@ module VagrantPlugins
               I18n.t("vagrant.sshfs.ask.prompt_for_password", username: opts[:ssh_username]),
               echo: false)
         end
+      end
+
+      # Function to find the path to an executable with name "name"
+      def find_executable(name)
+        error_class = VagrantPlugins::SyncedFolderSSHFS::Errors::SSHFSExeNotAvailable
+
+        # Save off PATH env var before we modify it
+        oldpath = ENV['PATH']
+
+        # Try to include paths where sftp-server may live so
+        # That we have a good chance of finding it
+        if Vagrant::Util::Platform.windows? and
+             Vagrant::Util::Platform.cygwin?
+          cygwin_root = Vagrant::Util::Platform.cygwin_windows_path('/')
+          ENV['PATH'] += ';' + cygwin_root + '\usr\sbin'
+        else
+          ENV['PATH'] += ':/usr/libexec/openssh' # Linux (Red Hat Family)
+          ENV['PATH'] += ':/usr/lib/openssh'     # Linux (Debian Family)
+          ENV['PATH'] += ':/usr/libexec/'        # Mac OS X
+        end
+
+        # Try to find the executable
+        exepath = Vagrant::Util::Which.which(name)
+        raise error_class, executable: name if !exepath
+
+        # Restore the PATH variable and return
+        ENV['PATH'] = oldpath
+        return exepath
       end
     end
   end
