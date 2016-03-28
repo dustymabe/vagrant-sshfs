@@ -1,3 +1,5 @@
+require "log4r"
+
 require "vagrant/util/platform"
 
 module VagrantPlugins
@@ -7,6 +9,8 @@ module VagrantPlugins
 
       def initialize(*args)
         super
+
+        @logger = Log4r::Logger.new("vagrant::synced_folders::sshfs")
         @@vagrant_host_machine_ip = nil
       end
 

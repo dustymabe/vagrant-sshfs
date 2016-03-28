@@ -1,3 +1,5 @@
+require "log4r"
+
 require "vagrant/util/retryable"
 
 module VagrantPlugins
@@ -5,6 +7,7 @@ module VagrantPlugins
     module Cap
       class MountSSHFS
         extend Vagrant::Util::Retryable
+        @@logger = Log4r::Logger.new("vagrant::synced_folders::sshfs_mount")
 
         def self.sshfs_mount_folder(machine, opts)
           # opts contains something like:
