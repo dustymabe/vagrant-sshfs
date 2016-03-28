@@ -43,8 +43,11 @@ module VagrantPlugins
           expanded_guest_path = machine.guest.capability(
             :shell_expand_guest_path, opts[:guestpath])
 
-          # Do the actual creating and mounting
-          machine.communicate.sudo("mkdir -p #{expanded_guest_path}")
+          # Create the mountpoint inside the guest
+          machine.communicate.tap do |comm|
+            comm.sudo("mkdir -p #{expanded_guest_path}")
+            comm.sudo("chmod 777 #{expanded_guest_path}")
+          end
 
           # Mount path information
           hostpath = opts[:hostpath].dup
