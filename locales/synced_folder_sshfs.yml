@@ -4,8 +4,10 @@ en:
       actions:
         installing: Installing SSHFS client...
         mounting: Mounting SSHFS shared folders...
-        mounting_folder: |-
+        slave_mounting_folder: |-
           Mounting folder via SSHFS: %{hostpath} => %{guestpath}
+        normal_mounting_folder: |-
+          Mounting folder via SSHFS: %{user}@%{host}:%{hostpath} => %{guestpath}
       ask:
         prompt_for_password: |-
           SSHFS password for '%{username}':

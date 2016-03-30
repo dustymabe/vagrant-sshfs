@@ -53,10 +53,6 @@ module VagrantPlugins
           hostpath = opts[:hostpath].dup
           hostpath.gsub!("'", "'\\\\''")
 
-          # Log some information
-          machine.ui.info(I18n.t("vagrant.sshfs.actions.mounting_folder", 
-                          hostpath: hostpath, guestpath: expanded_guest_path))
-
           # Add in some sshfs/fuse options that are common to both mount methods
           opts[:sshfs_opts] = ' -o allow_other ' # allow non-root users to access
           opts[:sshfs_opts]+= ' -o noauto_cache '# disable caching based on mtime
@@ -100,8 +96,11 @@ module VagrantPlugins
           ssh_cmd = ssh_path + ssh_opts + machine.ssh_info[:host]
           ssh_cmd+= ' "' + sshfs_cmd + '"'
 
+          # Log some information
           @@logger.debug("sftp-server cmd: #{sftp_server_cmd}")
           @@logger.debug("ssh cmd: #{ssh_cmd}")
+          machine.ui.info(I18n.t("vagrant.sshfs.actions.slave_mounting_folder", 
+                          hostpath: hostpath, guestpath: expanded_guest_path))
 
           # Create two named pipes for communication between sftp-server and
           # sshfs running in slave mode
@@ -171,6 +170,11 @@ module VagrantPlugins
             echopipe = "echo '#{password}' | "
             sshfs_opts+= '-o password_stdin '
           end
+
+          # Log some information
+          machine.ui.info(I18n.t("vagrant.sshfs.actions.normal_mounting_folder", 
+                          user: username, host: host, 
+                          hostpath: hostpath, guestpath: expanded_guest_path))
           
           # Build up the command and connect
           error_class = VagrantPlugins::SyncedFolderSSHFS::Errors::SSHFSNormalMountFailed
