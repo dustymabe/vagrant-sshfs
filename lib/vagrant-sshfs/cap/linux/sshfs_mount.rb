@@ -78,13 +78,21 @@ module VagrantPlugins
           sftp_server_path = opts[:sftp_server_exe_path]
           ssh_path = opts[:ssh_exe_path]
 
+          # SSH connection options
+          ssh_opts = opts[:ssh_opts]
+          ssh_opts_append = opts[:ssh_opts_append].to_s # provided by user
+
+          # SSHFS executable options
+          sshfs_opts = opts[:sshfs_opts]
+          sshfs_opts_append = opts[:sshfs_opts_append].to_s # provided by user
+
           # The sftp-server command
           sftp_server_cmd = sftp_server_path
 
           # The remote sshfs command that will run (in slave mode)
-          sshfs_opts = opts[:sshfs_opts]
-          sshfs_opts+= '-o slave'
-          sshfs_cmd = "sudo -E sshfs :#{hostpath} #{expanded_guest_path}" + sshfs_opts
+          sshfs_opts+= ' -o slave '
+          sshfs_cmd = "sudo -E sshfs :#{hostpath} #{expanded_guest_path}" 
+          sshfs_cmd+= sshfs_opts + ' ' + sshfs_opts_append + ' '
 
           # The ssh command to connect to guest and then launch sshfs
           ssh_opts = opts[:ssh_opts]
@@ -93,7 +101,7 @@ module VagrantPlugins
           ssh_opts+= ' -o IdentityFile=' + machine.ssh_info[:private_key_path][0]
           ssh_opts+= ' -o UserKnownHostsFile=/dev/null '
           ssh_opts+= ' -F /dev/null ' # Don't pick up options from user's config
-          ssh_cmd = ssh_path + ssh_opts + machine.ssh_info[:host]
+          ssh_cmd = ssh_path + ssh_opts + ' ' + ssh_opts_append + ' ' + machine.ssh_info[:host]
           ssh_cmd+= ' "' + sshfs_cmd + '"'
 
           # Log some information
@@ -154,9 +162,11 @@ module VagrantPlugins
 
           # SSH connection options
           ssh_opts = opts[:ssh_opts]
+          ssh_opts_append = opts[:ssh_opts_append].to_s # provided by user
 
           # SSHFS executable options
           sshfs_opts = opts[:sshfs_opts]
+          sshfs_opts_append = opts[:sshfs_opts_append].to_s # provided by user
 
           # Host/Port and Auth Information
           username = opts[:ssh_username]
@@ -180,8 +190,8 @@ module VagrantPlugins
           error_class = VagrantPlugins::SyncedFolderSSHFS::Errors::SSHFSNormalMountFailed
           cmd = echopipe 
           cmd+= "sshfs -p #{port} "
-          cmd+= ssh_opts
-          cmd+= sshfs_opts
+          cmd+= ssh_opts + ' ' + ssh_opts_append + ' '
+          cmd+= sshfs_opts + ' ' + sshfs_opts_append + ' '
           cmd+= "#{username}@#{host}:'#{hostpath}' #{expanded_guest_path}"
           retryable(on: error_class, tries: 3, sleep: 3) do
             machine.communicate.sudo(

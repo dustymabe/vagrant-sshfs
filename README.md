@@ -100,14 +100,7 @@ vagrant sshfs
 
 The SSHFS synced folder plugin supports a few options that can be
 provided in the `Vagrantfile`. The following sections describe the
-options in more detail, but for now here is a quick example of how to
-modify the `Vagrantfile` to provide some of these options:
-
-```
-config.vm.synced_folder "/path/on/host", "/path/on/guest", 
-    type: "sshfs",
-    disabled: true
-```
+options in more detail.
 
 ### Generic Options
 
@@ -116,12 +109,27 @@ provided in the `Vagrantfile`. They are described below:
 
 - `disabled`
     - If set to 'true', ignore this folder and don't mount it.
+- `ssh_opts_append`
+    - Add some options for the ssh connection that will be established.
+    - See the ssh man page for more details on possible options.
+- `sshfs_opts_append`
+    - Add some options for the sshfs fuse mount that will made
+    - See the sshfs man page for more details on possible options.
+
+An example snippet from a `Vagrantfile`:
+
+```
+config.vm.synced_folder "/path/on/host", "/path/on/guest",
+    ssh_opts_append: "-o Compression=yes -o CompressionLevel=5",
+    sshfs_opts_append: "-o auto_cache -o cache_timeout=115200",
+    disabled: false
+```
 
 ### Options Specific to Arbitrary Host Mounting
 
 The following options are only to be used when
 [sharing an arbitrary host directory](#sharing-arbitrary-host-directory-to-vagrant-guest---1-of-users)
-with the guest. They will be ignfored otherwise:
+with the guest. They will be ignored otherwise:
 
 - `ssh_host`
     - The host to connect to via SSH. If not provided this will be 
@@ -141,7 +149,15 @@ with the guest. They will be ignfored otherwise:
       deny Vagrant from ever prompting for the password by setting
       this to 'false'.
 
+An example snippet from a `Vagrantfile`:
 
+```
+config.vm.synced_folder "/path/on/host", "/path/on/guest",
+    ssh_host: "somehost.com", ssh_username: "fedora",
+    ssh_opts_append: "-o Compression=yes -o CompressionLevel=5",
+    sshfs_opts_append: "-o auto_cache -o cache_timeout=115200",
+    disabled: false
+```
 
 ## Appendix A: Using Keys and Forwarding SSH Agent
 
