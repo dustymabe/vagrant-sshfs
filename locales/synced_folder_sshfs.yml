@@ -4,8 +4,10 @@ en:
       actions:
         installing: Installing SSHFS client...
         mounting: Mounting SSHFS shared folders...
-        mounting_folder: |-
+        slave_mounting_folder: |-
           Mounting folder via SSHFS: %{hostpath} => %{guestpath}
+        normal_mounting_folder: |-
+          Mounting folder via SSHFS: %{user}@%{host}:%{hostpath} => %{guestpath}
       ask:
         prompt_for_password: |-
           SSHFS password for '%{username}':
@@ -18,6 +20,10 @@ en:
         communicator_not_ready: |-
           The machine is reporting that it is not ready to communicate via ssh. Verify
           this machine is properly running.
+        exe_not_in_host: |-
+          The '%{executable}' executable file can't be found on the host machine but
+          is required for sshfs mounting to work. Please install the software and 
+          try again.
         sshfs_not_in_guest: |-
           The necessary SSHFS software is not installed in the guest. 
         install_failed_arch: |-
@@ -27,10 +33,10 @@ en:
 
           [1] https://wiki.archlinux.org/index.php/pacman#Packages_cannot_be_retrieved_on_installation
           [2] https://wiki.archlinux.org/index.php/System_maintenance#Partial_upgrades_are_unsupported
-        mount_failed: |-
-          Mounting SSHFS shared folders failed. This is most often caused by either
-          an SSH Daemon not running on the host or invalid credentials being provided.
-          Please make sure an SSH daemon is running on the host and proper credentials 
+        normal_mount_failed: |-
+          Mounting SSHFS shared folders failed. This is most often caused by either an
+          SSH Daemon not running on the target host or invalid credentials being provided.
+          Please make sure an SSH daemon is running on the host and proper credentials
           were provided to be able to authenticate via SSH.
 
           The command and output are:
@@ -44,3 +50,7 @@ en:
           Stderr from the command:
 
           %{stderr}
+        slave_mount_failed: |-
+          Mounting SSHFS shared via slave SSHFS mount failed. Please look at your 
+          terminal scrollback to look for any error messages from the processes that 
+          were run.

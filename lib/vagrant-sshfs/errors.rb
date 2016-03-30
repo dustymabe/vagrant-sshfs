@@ -6,8 +6,12 @@ module VagrantPlugins
         error_namespace("vagrant.sshfs.errors")
       end
 
-      class SSHFSMountFailed < SSHFSError
-        error_key(:mount_failed)
+      class SSHFSNormalMountFailed < SSHFSError
+        error_key(:normal_mount_failed)
+      end
+
+      class SSHFSSlaveMountFailed < SSHFSError
+        error_key(:slave_mount_failed)
       end
 
       class SSHFSInstallFailed < SSHFSError
@@ -16,6 +20,10 @@ module VagrantPlugins
 
       class SSHFSNotInstalledInGuest < SSHFSError
         error_key(:sshfs_not_in_guest)
+      end
+
+      class SSHFSExeNotAvailable < SSHFSError
+        error_key(:exe_not_in_host)
       end
     end
   end

@@ -13,8 +13,8 @@ Gem::Specification.new do |spec|
     This is the successor to Fabio Kreusch's implementation:
     https://github.com/fabiokr/vagrant-sshfs"""
   spec.summary       = spec.description
-  spec.homepage      = ""
-  spec.license       = "GPL"
+  spec.homepage      = "https://github.com/dustymabe/vagrant-sshfs"
+  spec.license       = "GPL-2.0"
 
   spec.files         = `git ls-files -z`.split("\x0")
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }

@@ -10,18 +10,17 @@ The benefits of this approach:
 - Works on any host platform and hypervisor type
     - Windows, Linux, Mac OS X
     - Virtualbox, Libvirt, Hyper-V, VMWare
+- Seamlessly works on remote Vagrant solutions
+    - Works with vagrant aws/openstack/etc.. plugins
 
 The drawbacks with this approach:
 - Performance is worse than an implementation like NFS
-- There must be an SSH daemon running on the Vagrant host 
-- The Vagrant guest must be able to SSH to the Vagrant host and authenticate.
+- There must be `sftp-server` software on the Vagrant host 
 
-Running an SSH daemon on the host is mainly only a problem on the
-Windows platform. [Here](http://docs.oracle.com/cd/E24628_01/install.121/e22624/preinstall_req_cygwin_ssh.htm#EMBSC150) 
-is a guide for intalling the cygwin SSH daemon on Windows.
-
-In order to authenticate back to the host daemon you must either
-provide your password or use SSH keys and agent forwarding.
+`sftp-server` is usually provided by SSH server software so it already
+exists on Linux/Mac. On windows you only need to install
+[openssh](https://cygwin.com/cgi-bin2/package-cat.cgi?file=x86_64%2Fopenssh%2Fopenssh-7.2p1-1&grep=openssh)
+via [cygwin](https://cygwin.com/) and you will get `sftp-server`.
 
 ## History
 
@@ -34,12 +33,37 @@ plugin just like the other synced folder plugins (NFS/RSYNC/SMB/VirtualBox).
 This plugin was developed mainly by copying the code from the NFS synced 
 folder plugin from the Vagrant core code and molding it to fit SSHFS.
 
+## Modes of Operation
+
+### Sharing Vagrant Host Directory to Vagrant Guest - 99% of users
+
+This plugin uses SSHFS slave mounts 
+(see [link](https://github.com/dustymabe/vagrant-sshfs/issues/11))
+to mount a directory from the Vagrant Host into the Vagrant Guest. It
+uses the `sftp-server` software that exists on the host and `sshfs`
+running in *slave mode* within the guest to create a connection using
+the existing authentication over SSH that vagrant sets up for you.
+
+### Sharing Arbitrary Host Directory to Vagrant Guest - 1% of users
+
+This plugin allows you to share a folder from an arbitrary host to the
+Vagrant Guest. This would allow you to do a folder mount to some other
+host that may have files that you need. To do this the plugin will run
+an SSHFS command from the Guest and connect to the arbitrary host that
+must have an SSH daemon running. You must provide the `ssh_host`
+option in the Vagrantfile to get this to work. You can use ssh key
+forwarding or username/password for authentication for this.
+
+See [Options](#options-specific-to-arbitrary-host-mounting) and 
+[Appendix A](#appendix-a-using-keys-and-forwarding-ssh-agent) for
+more information.
+
 ## Getting Started
 
 In order to use this synced folder implementation perform the
 following steps:
 
-### Install plugin
+### Install Plugin
 
 In order to install the plugin simply run the following command:
 
@@ -47,7 +71,7 @@ In order to install the plugin simply run the following command:
 # vagrant plugin install vagrant-sshfs
 ```
 
-### Add SSHFS synced folder in Vagrantfile
+### Add SSHFS Synced Folder in Vagrantfile
 
 Edit your Vagrantfile to specify a folder to mount from the host into
 the guest:
@@ -56,12 +80,89 @@ the guest:
 config.vm.synced_folder "/path/on/host", "/path/on/guest", type: "sshfs"
 ```
 
-For more options that you can add see the [Options](#options) section.
+Now you can simply `vagrant up` and your folder should be mounted in
+the guest. For more options that you can add see the [Options](#options) 
+section.
 
-### Recommended: Using Keys and Forwarding SSH Agent
+## Executing the `vagrant sshfs` Command
 
+The Vagrant SSHFS plugin also supports execution of the `vagrant sshfs`
+command from the command line. Executing this command will
+iterate through the Vagrant file and attempt to mount (via SSHFS) any
+folders that aren't already mounted in the Vagrant guest that is
+associated with the current directory.
 
-If you want a completely non-interactive experience you can either
+```
+vagrant sshfs
+```
+
+## Options
+
+The SSHFS synced folder plugin supports a few options that can be
+provided in the `Vagrantfile`. The following sections describe the
+options in more detail.
+
+### Generic Options
+
+The SSHFS synced folder plugin supports a few options that can be
+provided in the `Vagrantfile`. They are described below:
+
+- `disabled`
+    - If set to 'true', ignore this folder and don't mount it.
+- `ssh_opts_append`
+    - Add some options for the ssh connection that will be established.
+    - See the ssh man page for more details on possible options.
+- `sshfs_opts_append`
+    - Add some options for the sshfs fuse mount that will made
+    - See the sshfs man page for more details on possible options.
+
+An example snippet from a `Vagrantfile`:
+
+```
+config.vm.synced_folder "/path/on/host", "/path/on/guest",
+    ssh_opts_append: "-o Compression=yes -o CompressionLevel=5",
+    sshfs_opts_append: "-o auto_cache -o cache_timeout=115200",
+    disabled: false
+```
+
+### Options Specific to Arbitrary Host Mounting
+
+The following options are only to be used when
+[sharing an arbitrary host directory](#sharing-arbitrary-host-directory-to-vagrant-guest---1-of-users)
+with the guest. They will be ignored otherwise:
+
+- `ssh_host`
+    - The host to connect to via SSH. If not provided this will be 
+      detected as the Vagrant host that is running the Vagrant guest.
+- `ssh_port`
+    - The port to use when connecting. Defaults to port 22.
+- `ssh_username`
+    - The username to use when connecting. If not provided it is
+    detected as the current user who is interacting with Vagrant.
+- `ssh_password`
+    - The password to use when connecting. If not provided and the
+      user is not using SSH keys, then the user will be prompted for
+      the password. Please use SSH keys and don't use this option!
+- `prompt_for_password`
+    - The user can force Vagrant to interactively prompt the user for
+      a password by setting this to 'true'. Alternatively the user can
+      deny Vagrant from ever prompting for the password by setting
+      this to 'false'.
+
+An example snippet from a `Vagrantfile`:
+
+```
+config.vm.synced_folder "/path/on/host", "/path/on/guest",
+    ssh_host: "somehost.com", ssh_username: "fedora",
+    ssh_opts_append: "-o Compression=yes -o CompressionLevel=5",
+    sshfs_opts_append: "-o auto_cache -o cache_timeout=115200",
+    disabled: false
+```
+
+## Appendix A: Using Keys and Forwarding SSH Agent
+
+When [sharing an arbitrary host directory](#sharing-arbitrary-host-directory-to-vagrant-guest---1-of-users)
+you may want a completely non-interactive experience. You can either
 hard code your password in the Vagrantfile or you can use SSH keys.
 A few guides for setting up ssh keys and key forwarding are on Github:
 - [Key Generation](https://help.github.com/articles/generating-ssh-keys)
@@ -91,53 +192,8 @@ And finally bring up your Vagrant guest:
 # vagrant up
 ```
 
-## Executing the `vagrant sshfs` command
 
-The Vagrant SSHFS plugin also supports execution of the `vagrant sshfs`
-command from the command line. Executing this command will
-iterate through the Vagrant file and attempt to mount (via SSHFS) any
-folders that aren't already mounted in the Vagrant guest that is
-associated with the current directory.
-
-```
-vagrant sshfs
-```
-
-## Options
-
-The SSHFS synced folder plugin supports a few options that can be
-provided in the `Vagrantfile`. They are described below:
-
-- `ssh_host`
-    - The host to connect to via SSH. If not provided this will be 
-      detected as the Vagrant host that is running the Vagrant guest.
-- `ssh_port`
-    - The port to use when connecting. Defaults to port 22.
-- `ssh_username` 
-    - The username to use when connecting. If not provided it is
-    detected as the current user who is interacting with Vagrant.
-- `ssh_password` - NOT RECOMMENDED
-    - The password to use when connecting. If not provided and the
-      user is not using SSH keys, then the user will be prompted for
-      the password. Please use SSH keys and don't use this option!
-- `prompt_for_password`
-    - The user can force Vagrant to interactively prompt the user for
-      a password by setting this to 'true'. Alternatively the user can
-      deny Vagrant from ever prompting for the password by setting
-      this to 'false'.
-- `disabled`
-    - If set to 'true', ignore this folder and don't mount it.
-
-Here is an example of how to use the options:
-
-```
-config.vm.synced_folder "/path/on/host", "/path/on/guest", 
-    type: "sshfs",
-    ssh_username: "user1",
-    ssh_port: "22"
-```
-
-## Development
+## Appendix B: Development
 
 For local development of this plugin here is an example of how to build 
 and install this plugin on your local machine:
