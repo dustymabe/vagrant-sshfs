@@ -57,15 +57,18 @@ module VagrantPlugins
           machine.ui.info(I18n.t("vagrant.sshfs.actions.mounting_folder", 
                           hostpath: hostpath, guestpath: expanded_guest_path))
 
-          # Add in some sshfs options that are common to both mount methods
-          sshfs_opts = ' -o allow_other '
-          sshfs_opts+= ' -o noauto_cache '
+          # Add in some sshfs/fuse options that are common to both mount methods
+          opts[:sshfs_opts] = ' -o allow_other ' # allow non-root users to access
+          opts[:sshfs_opts]+= ' -o noauto_cache '# disable caching based on mtime
+
+          # Add in some ssh options that are common to both mount methods
+          opts[:ssh_opts] = ' -o StrictHostKeyChecking=no '# prevent yes/no question 
 
           # Do a normal mount only if the user provided host information
           if opts.has_key?(:ssh_host) and opts[:ssh_host]
-            self.sshfs_normal_mount(machine, opts, sshfs_opts, hostpath, expanded_guest_path)
+            self.sshfs_normal_mount(machine, opts, hostpath, expanded_guest_path)
           else
-            self.sshfs_slave_mount(machine, opts, sshfs_opts, hostpath, expanded_guest_path)
+            self.sshfs_slave_mount(machine, opts, hostpath, expanded_guest_path)
           end
         end
 
@@ -73,7 +76,7 @@ module VagrantPlugins
 
         # Perform a mount by running an sftp-server on the vagrant host 
         # and piping stdin/stdout to sshfs running inside the guest
-        def self.sshfs_slave_mount(machine, opts, sshfs_opts, hostpath, expanded_guest_path)
+        def self.sshfs_slave_mount(machine, opts, hostpath, expanded_guest_path)
 
           sftp_server_path = opts[:sftp_server_exe_path]
           ssh_path = opts[:ssh_exe_path]
@@ -82,14 +85,15 @@ module VagrantPlugins
           sftp_server_cmd = sftp_server_path
 
           # The remote sshfs command that will run (in slave mode)
+          sshfs_opts = opts[:sshfs_opts]
           sshfs_opts+= '-o slave'
           sshfs_cmd = "sudo -E sshfs :#{hostpath} #{expanded_guest_path}" + sshfs_opts
 
           # The ssh command to connect to guest and then launch sshfs
-          ssh_opts = ' -o User=' + machine.ssh_info[:username]
+          ssh_opts = opts[:ssh_opts]
+          ssh_opts+= ' -o User=' + machine.ssh_info[:username]
           ssh_opts+= ' -o Port=' + machine.ssh_info[:port].to_s
           ssh_opts+= ' -o IdentityFile=' + machine.ssh_info[:private_key_path][0]
-          ssh_opts+= ' -o StrictHostKeyChecking=no '
           ssh_opts+= ' -o UserKnownHostsFile=/dev/null '
           ssh_opts+= ' -F /dev/null ' # Don't pick up options from user's config
           ssh_cmd = ssh_path + ssh_opts + machine.ssh_info[:host]
@@ -146,10 +150,13 @@ module VagrantPlugins
         # Do a normal sshfs mount in which we will ssh into the guest
         # and then execute the sshfs command to connect the the opts[:ssh_host]
         # and mount a folder from opts[:ssh_host] into the guest.
-        def self.sshfs_normal_mount(machine, opts, sshfs_opts, hostpath, expanded_guest_path)
+        def self.sshfs_normal_mount(machine, opts, hostpath, expanded_guest_path)
 
           # SSH connection options
-          ssh_opts = '-o StrictHostKeyChecking=no '
+          ssh_opts = opts[:ssh_opts]
+
+          # SSHFS executable options
+          sshfs_opts = opts[:sshfs_opts]
 
           # Host/Port and Auth Information
           username = opts[:ssh_username]
