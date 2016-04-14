@@ -171,8 +171,6 @@ module VagrantPlugins
             sleep(2)
           end
           if !mounted
-            Process.kill("TERM", p1) 
-            Process.kill("TERM", p2) 
             raise VagrantPlugins::SyncedFolderSSHFS::Errors::SSHFSSlaveMountFailed
           end
           machine.ui.info("Folder Successfully Mounted!")
