@@ -15,7 +15,7 @@ module VagrantPlugins
         SyncedFolder
       end
 
-      command("sshfs", primary: false) do
+      command("sshfs", primary: true) do
         require_relative "command"
         Command::SSHFS
       end
