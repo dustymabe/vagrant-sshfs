@@ -79,6 +79,35 @@ module VagrantPlugins
         end
       end
 
+      # This is called to remove the synced folders from a running
+      # machine.
+      #
+      # This is not guaranteed to be called, but this should be implemented
+      # by every synced folder implementation.
+      #
+      # @param [Machine] machine The machine to modify.
+      # @param [Hash] folders The folders to remove. This will not contain
+      #   any folders that should remain.
+      # @param [Hash] opts Any options for the synced folders.
+      def disable(machine, folders, opts)
+
+        # Iterate through the folders and mount if needed
+        folders.each do |id, opts|
+
+          # If not mounted then there is nothing to do
+          if ! machine.guest.capability(:sshfs_is_folder_mounted, opts)
+            machine.ui.info(
+              I18n.t("vagrant.sshfs.info.not_mounted",
+                     folder: opts[:guestpath]))
+            next
+          end
+
+          # Do the Unmount
+          machine.ui.info(I18n.t("vagrant.sshfs.actions.unmounting"))
+          machine.guest.capability(:sshfs_unmount_folder, opts)
+        end
+      end
+
       # This is called after destroying the machine during a
       # `vagrant destroy` and also prior to syncing folders during
       # a `vagrant up`.

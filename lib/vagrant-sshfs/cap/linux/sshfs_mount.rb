@@ -69,6 +69,33 @@ module VagrantPlugins
           end
         end
 
+        def self.sshfs_unmount_folder(machine, opts)
+          # opts contains something like:
+          #   { :type=>:sshfs,
+          #     :guestpath=>"/sharedfolder",
+          #     :hostpath=>"/guests/sharedfolder",
+          #     :disabled=>false
+          #     :ssh_host=>"192.168.1.1"
+          #     :ssh_port=>"22"
+          #     :ssh_username=>"username"
+          #     :ssh_password=>"password"
+          #   }
+
+          # expand the guest path so we can handle things like "~/vagrant"
+          expanded_guest_path = machine.guest.capability(
+            :shell_expand_guest_path, opts[:guestpath])
+
+          # Log some information
+          machine.ui.info(I18n.t("vagrant.sshfs.actions.unmounting_folder",
+                                 guestpath: expanded_guest_path))
+
+          # Build up the command and connect
+          error_class = VagrantPlugins::SyncedFolderSSHFS::Errors::SSHFSUnmountFailed
+          cmd = "umount #{expanded_guest_path}"
+          machine.communicate.sudo(
+            cmd, error_class: error_class, error_key: :unmount_failed)
+        end
+
         protected
 
         # Perform a mount by running an sftp-server on the vagrant host 
