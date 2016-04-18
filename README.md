@@ -87,13 +87,13 @@ section.
 ## Executing the `vagrant sshfs` Command
 
 The Vagrant SSHFS plugin also supports execution of the `vagrant sshfs`
-command from the command line. Executing this command will
-iterate through the Vagrant file and attempt to mount (via SSHFS) any
-folders that aren't already mounted in the Vagrant guest that is
-associated with the current directory.
+command from the command line. Executing this command with the `--mount`
+option will iterate through the Vagrant file and attempt to mount (via 
+SSHFS) any folders that aren't already mounted in the Vagrant guest.
+Executing with the `--unmount` option will unmount any mounted folders.
 
 ```
-vagrant sshfs
+vagrant sshfs [--mount|--unmount] [vm-name]
 ```
 
 ## Options

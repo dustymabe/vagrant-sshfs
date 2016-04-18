@@ -3,7 +3,10 @@ en:
     sshfs:
       actions:
         installing: Installing SSHFS client...
-        mounting: Mounting SSHFS shared folders...
+        mounting: Mounting SSHFS shared folder...
+        unmounting: Unmounting SSHFS shared folder...
+        unmounting_folder: |-
+          Unmounting SSHFS shared folder mounted at %{guestpath}
         slave_mounting_folder: |-
           Mounting folder via SSHFS: %{hostpath} => %{guestpath}
         normal_mounting_folder: |-
@@ -16,6 +19,8 @@ en:
           Detected host IP address is '%{ip}'
         already_mounted: |-
           The folder %{folder} in the guest already mounted.
+        not_mounted: |-
+          The folder %{folder} in the guest is not mounted.
       errors:
         communicator_not_ready: |-
           The machine is reporting that it is not ready to communicate via ssh. Verify
@@ -54,3 +59,17 @@ en:
           Mounting SSHFS shared via slave SSHFS mount failed. Please look at your 
           terminal scrollback to look for any error messages from the processes that 
           were run.
+        unmount_failed: |-
+          Unmount the SSHFS mount failed.
+
+          The command and output are:
+
+          %{command}
+
+          Stdout from the command:
+
+          %{stdout}
+
+          Stderr from the command:
+
+          %{stderr}

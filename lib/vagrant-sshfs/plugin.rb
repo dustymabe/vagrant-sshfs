@@ -15,12 +15,17 @@ module VagrantPlugins
         SyncedFolder
       end
 
-      command("sshfs", primary: false) do
+      command("sshfs", primary: true) do
         require_relative "command"
         Command::SSHFS
       end
 
       guest_capability("linux", "sshfs_mount_folder") do
+        require_relative "cap/linux/sshfs_mount"
+        VagrantPlugins::GuestLinux::Cap::MountSSHFS
+      end
+
+      guest_capability("linux", "sshfs_unmount_folder") do
         require_relative "cap/linux/sshfs_mount"
         VagrantPlugins::GuestLinux::Cap::MountSSHFS
       end

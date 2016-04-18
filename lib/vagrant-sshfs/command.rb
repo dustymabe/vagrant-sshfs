@@ -10,11 +10,19 @@ module VagrantPlugins
         end
 
         def execute
+          options = {:unmount => false} # Default to mounting shares
           opts = OptionParser.new do |o|
-            o.banner = "Usage: vagrant sshfs"
+            o.banner = "Usage: vagrant sshfs [--mount|--unmount] [vm-name]"
             o.separator ""
-            o.separator "Mount all sshfs synced folders into the vagrant box"
+            o.separator "Mount or unmount sshfs synced folders into the vagrant box"
             o.separator ""
+
+            o.on("--mount", "Mount folders - the default") do
+              options[:unmount] = false
+            end
+            o.on("--unmount", "Unmount folders") do
+              options[:unmount] = true
+            end
           end
 
           # Parse the options and return if we don't have any target.
@@ -36,8 +44,12 @@ module VagrantPlugins
             folders = synced_folders(machine, cached: false)[:sshfs]
             next if !folders || folders.empty?
 
-            # Sync them!
-            SyncedFolder.new.enable(machine, folders, {})
+            # Mount or Unmount depending on the user's request
+            if options[:unmount]
+              SyncedFolder.new.disable(machine, folders, {})
+            else
+              SyncedFolder.new.enable(machine, folders, {})
+            end
           end
           return error ? 1 : 0
         end
