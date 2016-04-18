@@ -162,7 +162,7 @@ module VagrantPlugins
 
           # Check that the mount made it
           mounted = false
-          for i in 0..10
+          for i in 0..6
             machine.ui.info("Checking Mount..")
             if self.sshfs_is_folder_mounted(machine, opts)
               mounted = true
@@ -171,8 +171,6 @@ module VagrantPlugins
             sleep(2)
           end
           if !mounted
-            Process.kill("TERM", p1) 
-            Process.kill("TERM", p2) 
             raise VagrantPlugins::SyncedFolderSSHFS::Errors::SSHFSSlaveMountFailed
           end
           machine.ui.info("Folder Successfully Mounted!")
