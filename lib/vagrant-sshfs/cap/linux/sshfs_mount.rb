@@ -1,6 +1,7 @@
 require "log4r"
 
 require "vagrant/util/retryable"
+require "tempfile"
 
 module VagrantPlugins
   module GuestLinux
@@ -142,6 +143,12 @@ module VagrantPlugins
           r1, w1 = IO.pipe # reader/writer from pipe1
           r2, w2 = IO.pipe # reader/writer from pipe2
 
+          # For issue #27 we'll need to create a tmp files for STDERR
+          # Can't send to /dev/null. Doesn't work on Windows.
+          # Can't close FD with :close. Doesn't work on Windows.
+          t1 = Tempfile.new('vagrant_sshfs_sftp_server_stderr').path()
+          t2 = Tempfile.new('vagrant_sshfs_ssh_stderr').path()
+
           # The way this works is by hooking up the stdin+stdout of the
           # sftp-server process to the stdin+stdout of the sshfs process
           # running inside the guest in slave mode. An illustration is below:
@@ -157,8 +164,8 @@ module VagrantPlugins
           #          stdin <= r2        pipe2         w2 <= stdout 
           #
           # Wire up things appropriately and start up the processes
-          p1 = spawn(sftp_server_cmd,  :out => w2, :in => r1)
-          p2 = spawn(ssh_cmd, :out => w1, :in => r2)
+          p1 = spawn(sftp_server_cmd, :out => w2, :in => r1, :err => t1)
+          p2 = spawn(ssh_cmd,         :out => w1, :in => r2, :err => t2)
 
           # Check that the mount made it
           mounted = false
