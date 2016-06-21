@@ -1,5 +1,6 @@
 # Build artifacts
 pkg
+build
 
 # Ruby / Bundler
 Gemfile.lock

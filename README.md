@@ -195,16 +195,24 @@ And finally bring up your Vagrant guest:
 
 ## Appendix B: Development
 
-For local development of this plugin here is an example of how to build 
-and install this plugin on your local machine:
+For local development of this plugin here is an example of how to build, test and install this plugin on your local machine:
 
 ```
-$ rake build
-vagrant-sshfs 0.1.0 built to pkg/vagrant-sshfs-0.1.0.gem.
-$ mkdir -p /tmp/gems/gems
-$ cp pkg/vagrant-sshfs-0.1.0.gem /tmp/gems/gems/                                                                                                          
-$ pushd /tmp/gems/
-$ gem generate_index
-$ popd
-$ vagrant plugin install vagrant-sshfs --plugin-source file:///tmp/gems/
+# Install development dependencies
+$ gem install bundler && bundle install
+
+# List available Rake tasks
+$ bundle exec rake -T
+
+# Run Cucumber tests
+$ bundle exec rake features
+
+# Build the gem (gets generated in the 'pkg' directory
+$ bundle exec rake build
+
+# Run Vagrant in the context of the plugin
+$ bundle exec rake vagrant <command>
+
+# Install built gem into global Vagrant installation (run outside of git checkout!)
+$ vagrant plugin install <path to gem in pkg directory>
 ```
