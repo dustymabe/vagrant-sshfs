@@ -21,6 +21,12 @@ Gem::Specification.new do |spec|
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ["lib"]
 
-  spec.add_development_dependency "bundler", "~> 1.7"
-  spec.add_development_dependency "rake", "~> 10.0"
+  spec.add_dependency 'win32-process'
+
+  spec.add_development_dependency 'bundler', '~> 1.7'
+  spec.add_development_dependency 'rake', '~> 10.0'
+  spec.add_development_dependency 'cucumber', '~> 2.1'
+  spec.add_development_dependency 'aruba', '~> 0.13'
+  spec.add_development_dependency 'komenda', '~> 0.1.6'
+  spec.add_development_dependency 'launchy'
 end
