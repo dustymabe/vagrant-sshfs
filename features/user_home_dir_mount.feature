@@ -15,14 +15,14 @@ Feature: Mount of user home directory
       end
     end
     """
-    When I successfully run `bundle exec vagrant up --provider <provider>`
-    Then stdout from "bundle exec vagrant up --provider <provider>" should contain "Installing SSHFS client..."
-    And  stdout from "bundle exec vagrant up --provider <provider>" should contain "Mounting SSHFS shared folder..."
-    And  stdout from "bundle exec vagrant up --provider <provider>" should contain "Folder Successfully Mounted!"
+    When I successfully run `bundle exec vagrant up`
+    Then stdout from "bundle exec vagrant up" should contain "Installing SSHFS client..."
+    And  stdout from "bundle exec vagrant up" should contain "Mounting SSHFS shared folder..."
+    And  stdout from "bundle exec vagrant up" should contain "Folder Successfully Mounted!"
     And user's home directory should be mounted
 
     Examples:
-      | box              | provider   |
-      | centos/7         | virtualbox |
+      | box      |
+      | centos/7 |
     
     
