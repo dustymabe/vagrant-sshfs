@@ -8,6 +8,13 @@ Feature: SSHFS mount of vagrant current working directory
       # Disable the default rsync
       config.vm.synced_folder '.', '/vagrant', disabled: true
 
+      # If using libvirt and nested virt (vagrant in vagrant) then 
+      # we need to use a different network than 192.168.121.0
+      config.vm.provider :libvirt do |libvirt|
+        libvirt.management_network_name = 'vagrant-libvirt-test'
+        libvirt.management_network_address = '192.168.129.0/24'
+      end
+
       # Mount up the current dir. It will have the Vagrantfile in there.
       config.vm.synced_folder './', '/testdir', type: 'sshfs'
     end
