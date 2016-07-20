@@ -1,3 +1,16 @@
+# The language in this file is Gherkin. It is the language Cucumber
+# uses to define test cases and is designed to be non-technical and
+# human readable. All Gherkin files have a .feature extension
+#
+# See more here: https://en.wikipedia.org/wiki/Cucumber_(software)
+# 
+# Additoinally in the setup/env.rb file we set up Aruba. Aruba is used 
+# to define most of the basic step definitions that we use as part of 
+# the Gherkin syntax in this file.
+#
+# For more information on the step definitions provided see:
+# https://github.com/cucumber/aruba/tree/bb5d7ff71809b5461e29153ded793d2b9a3a0624/features/testing_frameworks/cucumber/steps
+#
 Feature: SSHFS mount of vagrant current working directory
 
   Scenario Outline: SSHFS mounting of vagrant cwd
@@ -23,6 +36,7 @@ Feature: SSHFS mount of vagrant current working directory
     Then stdout from "bundle exec vagrant up" should contain "Installing SSHFS client..."
     And  stdout from "bundle exec vagrant up" should contain "Mounting SSHFS shared folder..."
     And  stdout from "bundle exec vagrant up" should contain "Folder Successfully Mounted!"
+    # The code for the following test is in ./step_definitions/sshfs_cwd_mount_steps.rb
     And vagrant current working directory should be mounted
 
     Examples:
