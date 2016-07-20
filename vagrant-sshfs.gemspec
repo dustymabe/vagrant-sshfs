@@ -28,5 +28,4 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'cucumber', '~> 2.1'
   spec.add_development_dependency 'aruba', '~> 0.13'
   spec.add_development_dependency 'komenda', '~> 0.1.6'
-  spec.add_development_dependency 'launchy'
 end
