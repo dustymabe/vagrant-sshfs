@@ -211,7 +211,7 @@ $ bundle exec rake features
 $ bundle exec rake build
 
 # Run Vagrant in the context of the plugin
-$ bundle exec rake vagrant <command>
+$ bundle exec vagrant <command>
 
 # Install built gem into global Vagrant installation (run outside of git checkout!)
 $ vagrant plugin install <path to gem in pkg directory>
