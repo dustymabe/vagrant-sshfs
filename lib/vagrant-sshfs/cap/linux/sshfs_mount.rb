@@ -149,11 +149,13 @@ module VagrantPlugins
           r1, w1 = IO.pipe # reader/writer from pipe1
           r2, w2 = IO.pipe # reader/writer from pipe2
 
-          # For issue #27 we'll need to create a tmp files for STDERR
-          # Can't send to /dev/null. Doesn't work on Windows.
-          # Can't close FD with :close. Doesn't work on Windows.
-          t1 = Tempfile.new('vagrant_sshfs_sftp_server_stderr')
-          t2 = Tempfile.new('vagrant_sshfs_ssh_stderr')
+          # Log STDERR to predictable files so that we can inspect them
+          # later in case things go wrong. We'll use the machines data
+          # directory (i.e. .vagrant/machines/default/virtualbox/) for this
+          f1path = machine.data_dir.join('vagrant_sshfs_sftp_server_stderr.txt')
+          f2path = machine.data_dir.join('vagrant_sshfs_ssh_stderr.txt')
+          f1 = File.new(f1path, 'w+')
+          f2 = File.new(f2path, 'w+')
 
           # The way this works is by hooking up the stdin+stdout of the
           # sftp-server process to the stdin+stdout of the sshfs process
@@ -177,16 +179,16 @@ module VagrantPlugins
                            :creation_flags => Process::DETACHED_PROCESS,
                            :process_inherit => false,
                            :thread_inherit => true,
-                           :startup_info => {:stdin => w2, :stdout => r1, :stderr => t1})
+                           :startup_info => {:stdin => w2, :stdout => r1, :stderr => f1})
 
             Process.create(:command_line => ssh_cmd,
                            :creation_flags => Process::DETACHED_PROCESS,
                            :process_inherit => false,
                            :thread_inherit => true,
-                           :startup_info => {:stdin => w1, :stdout => r2, :stderr => t2})
+                           :startup_info => {:stdin => w1, :stdout => r2, :stderr => f2})
           else
-            p1 = spawn(sftp_server_cmd, :out => w2, :in => r1, :err => t1, :pgroup => true)
-            p2 = spawn(ssh_cmd,         :out => w1, :in => r2, :err => t2, :pgroup => true)
+            p1 = spawn(sftp_server_cmd, :out => w2, :in => r1, :err => f1, :pgroup => true)
+            p2 = spawn(ssh_cmd,         :out => w1, :in => r2, :err => f2, :pgroup => true)
 
             # Detach from the processes so they will keep running
             Process.detach(p1)
@@ -204,7 +206,10 @@ module VagrantPlugins
             sleep(2)
           end
           if !mounted
-            raise VagrantPlugins::SyncedFolderSSHFS::Errors::SSHFSSlaveMountFailed
+            f1.rewind # Seek to beginning of the file
+            f2.rewind # Seek to beginning of the file
+            error_class = VagrantPlugins::SyncedFolderSSHFS::Errors::SSHFSSlaveMountFailed
+            raise error_class, sftp_stderr: f1.read, ssh_stderr: f2.read
           end
           machine.ui.info("Folder Successfully Mounted!")
         end
