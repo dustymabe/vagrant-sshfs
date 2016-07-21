@@ -7,6 +7,11 @@ Gemfile.lock
 .ruby-gemset
 .ruby-version
 
+# .vagrant dirs
+.vagrant
+
 # IDE config files
 .idea
 *.iml
+
+
