@@ -205,7 +205,7 @@ $ gem install bundler && bundle install
 $ bundle exec rake -T
 
 # Run Cucumber tests
-$ bundle exec rake features
+$ bundle exec rake featuretests
 
 # Build the gem (gets generated in the 'pkg' directory
 $ bundle exec rake build

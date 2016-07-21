@@ -12,4 +12,4 @@ and then:
 cd /sharedfolder/code/github.com/dustymabe/vagrant-sshfs/
 gem install bundler
 bundle install
-bundle exec rake features
+bundle exec rake featuretests
