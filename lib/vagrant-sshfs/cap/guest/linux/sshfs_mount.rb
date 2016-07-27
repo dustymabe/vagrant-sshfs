@@ -16,7 +16,7 @@ module VagrantPlugins
         extend Vagrant::Util::Retryable
         @@logger = Log4r::Logger.new("vagrant::synced_folders::sshfs_mount")
 
-        def self.sshfs_is_folder_mounted(machine, opts)
+        def self.sshfs_forward_is_folder_mounted(machine, opts)
           mounted = false
           # expand the guest path so we can handle things like "~/vagrant"
           expanded_guest_path = machine.guest.capability(
@@ -34,7 +34,7 @@ module VagrantPlugins
           return mounted
         end
 
-        def self.sshfs_mount_folder(machine, opts)
+        def self.sshfs_forward_mount_folder(machine, opts)
           # opts contains something like:
           #   { :type=>:sshfs,
           #     :guestpath=>"/sharedfolder",
@@ -76,7 +76,7 @@ module VagrantPlugins
           end
         end
 
-        def self.sshfs_unmount_folder(machine, opts)
+        def self.sshfs_forward_unmount_folder(machine, opts)
           # opts contains something like:
           #   { :type=>:sshfs,
           #     :guestpath=>"/sharedfolder",

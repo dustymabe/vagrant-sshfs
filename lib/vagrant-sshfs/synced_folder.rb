@@ -51,7 +51,7 @@ module VagrantPlugins
         folders.each do |id, opts|
 
           # If already mounted then there is nothing to do
-          if machine.guest.capability(:sshfs_is_folder_mounted, opts)
+          if machine.guest.capability(:sshfs_forward_is_folder_mounted, opts)
             machine.ui.info(
               I18n.t("vagrant.sshfs.info.already_mounted",
                      folder: opts[:guestpath]))
@@ -75,7 +75,7 @@ module VagrantPlugins
           end
           # Do the mount
           machine.ui.info(I18n.t("vagrant.sshfs.actions.mounting"))
-          machine.guest.capability(:sshfs_mount_folder, opts)
+          machine.guest.capability(:sshfs_forward_mount_folder, opts)
         end
       end
 
@@ -95,7 +95,7 @@ module VagrantPlugins
         folders.each do |id, opts|
 
           # If not mounted then there is nothing to do
-          if ! machine.guest.capability(:sshfs_is_folder_mounted, opts)
+          if ! machine.guest.capability(:sshfs_forward_is_folder_mounted, opts)
             machine.ui.info(
               I18n.t("vagrant.sshfs.info.not_mounted",
                      folder: opts[:guestpath]))
@@ -104,7 +104,7 @@ module VagrantPlugins
 
           # Do the Unmount
           machine.ui.info(I18n.t("vagrant.sshfs.actions.unmounting"))
-          machine.guest.capability(:sshfs_unmount_folder, opts)
+          machine.guest.capability(:sshfs_forward_unmount_folder, opts)
         end
       end
 
