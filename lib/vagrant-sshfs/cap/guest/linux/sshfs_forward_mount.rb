@@ -199,7 +199,7 @@ module VagrantPlugins
           mounted = false
           for i in 0..6
             machine.ui.info("Checking Mount..")
-            if self.sshfs_is_folder_mounted(machine, opts)
+            if self.sshfs_forward_is_folder_mounted(machine, opts)
               mounted = true
               break
             end
