@@ -21,17 +21,17 @@ module VagrantPlugins
       end
 
       guest_capability("linux", "sshfs_forward_mount_folder") do
-        require_relative "cap/guest/linux/sshfs_mount"
+        require_relative "cap/guest/linux/sshfs_forward_mount"
         VagrantPlugins::GuestLinux::Cap::MountSSHFS
       end
 
       guest_capability("linux", "sshfs_forward_unmount_folder") do
-        require_relative "cap/guest/linux/sshfs_mount"
+        require_relative "cap/guest/linux/sshfs_forward_mount"
         VagrantPlugins::GuestLinux::Cap::MountSSHFS
       end
 
       guest_capability("linux", "sshfs_forward_is_folder_mounted") do
-        require_relative "cap/guest/linux/sshfs_mount"
+        require_relative "cap/guest/linux/sshfs_forward_mount"
         VagrantPlugins::GuestLinux::Cap::MountSSHFS
       end
 
