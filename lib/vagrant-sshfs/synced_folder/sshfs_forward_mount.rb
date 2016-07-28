@@ -28,7 +28,7 @@ module VagrantPlugins
         if machine.guest.capability(:sshfs_forward_is_folder_mounted, opts)
           machine.ui.info(
             I18n.t("vagrant.sshfs.info.already_mounted",
-                   folder: opts[:guestpath]))
+                   location: 'guest', folder: opts[:guestpath]))
           return
         end
 
@@ -58,7 +58,7 @@ module VagrantPlugins
         if ! machine.guest.capability(:sshfs_forward_is_folder_mounted, opts)
           machine.ui.info(
             I18n.t("vagrant.sshfs.info.not_mounted",
-                   folder: opts[:guestpath]))
+                   location: 'guest', folder: opts[:guestpath]))
           return
         end
 

@@ -20,6 +20,21 @@ module VagrantPlugins
         Command::SSHFS
       end
 
+      host_capability("linux", "sshfs_reverse_mount_folder") do
+        require_relative "cap/host/linux/sshfs_reverse_mount"
+        VagrantPlugins::HostLinux::Cap::MountSSHFS
+      end
+
+      host_capability("linux", "sshfs_reverse_unmount_folder") do
+        require_relative "cap/host/linux/sshfs_reverse_mount"
+        VagrantPlugins::HostLinux::Cap::MountSSHFS
+      end
+
+      host_capability("linux", "sshfs_reverse_is_folder_mounted") do
+        require_relative "cap/host/linux/sshfs_reverse_mount"
+        VagrantPlugins::HostLinux::Cap::MountSSHFS
+      end
+
       guest_capability("linux", "sshfs_forward_mount_folder") do
         require_relative "cap/guest/linux/sshfs_forward_mount"
         VagrantPlugins::GuestLinux::Cap::MountSSHFS

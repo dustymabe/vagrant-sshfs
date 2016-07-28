@@ -4,6 +4,7 @@ require "vagrant/util/platform"
 require "vagrant/util/which"
 
 require_relative "synced_folder/sshfs_forward_mount"
+require_relative "synced_folder/sshfs_reverse_mount"
 
 module VagrantPlugins
   module SyncedFolderSSHFS
@@ -39,7 +40,12 @@ module VagrantPlugins
 
         # Iterate through the folders and mount if needed
         folders.each do |id, opts|
-          do_forward_mount(machine, opts)
+
+          if opts.has_key?(:reverse) and opts[:reverse]
+            do_reverse_mount(machine, opts)
+          else
+            do_forward_mount(machine, opts)
+          end
         end
       end
 
@@ -57,7 +63,11 @@ module VagrantPlugins
 
         # Iterate through the folders and mount if needed
         folders.each do |id, opts|
-          do_forward_unmount(machine, opts)
+          if opts.has_key?(:reverse) and opts[:reverse]
+            do_reverse_unmount(machine, opts)
+          else
+            do_forward_unmount(machine, opts)
+          end
         end
       end
 

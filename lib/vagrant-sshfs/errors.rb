@@ -14,6 +14,10 @@ module VagrantPlugins
         error_key(:slave_mount_failed)
       end
 
+      class SSHFSReverseMountFailed < SSHFSError
+        error_key(:reverse_mount_failed)
+      end
+
       class SSHFSUnmountFailed < SSHFSError
         error_key(:unmount_failed)
       end
