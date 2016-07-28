@@ -1,0 +1,35 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+Vagrant.configure(2) do |config|
+
+    config.ssh.insert_key = 'true'
+    config.vm.synced_folder "/guests/sharedfolder", "/sharedfolder", type: "sshfs"
+
+    config.vm.provider :libvirt do |domain|
+      domain.memory = 4096
+      domain.cpus = 4
+      domain.nested = true
+    end
+
+    host = 'viv-libvirt' # vagrant in vagrant - to test libvirt
+    box  = 'fedora/24-cloud-base'
+
+    config.vm.define host do | tmp |
+        tmp.vm.hostname = host
+        tmp.vm.box = box
+    end
+  config.vm.provision "shell", inline: <<-SHELL
+    rpms=(
+      libvirt-daemon-kvm                         # for vagrant libvirt support
+      make gcc ruby ruby-devel redhat-rpm-config # for building gems
+      gcc-c++                                    # for building unf_ext
+      libvirt-devel                              # for building ruby-libvirt gem
+      zlib-devel                                 # for building nokogiri gem
+      git                                        # for the git ls-files in gemspec file
+      bsdtar                                     # used by vagrant to unpack box files
+    )
+    dnf install -y ${rpms[@]}
+    usermod -a -G libvirt vagrant
+    systemctl start libvirtd virtlogd
+  SHELL
+end

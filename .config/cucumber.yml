@@ -1,7 +1,0 @@
-# config/cucumber.yml
-##YAML Template
----
-default: --profile html
-
-pretty: --format pretty -b
-html: --format progress --format html --out=build/features_report.html -b

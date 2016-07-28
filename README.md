@@ -205,13 +205,13 @@ $ gem install bundler && bundle install
 $ bundle exec rake -T
 
 # Run Cucumber tests
-$ bundle exec rake features
+$ bundle exec rake featuretests
 
 # Build the gem (gets generated in the 'pkg' directory
 $ bundle exec rake build
 
 # Run Vagrant in the context of the plugin
-$ bundle exec rake vagrant <command>
+$ bundle exec vagrant <command>
 
 # Install built gem into global Vagrant installation (run outside of git checkout!)
 $ vagrant plugin install <path to gem in pkg directory>
