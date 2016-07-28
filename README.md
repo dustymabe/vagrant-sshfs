@@ -35,7 +35,7 @@ folder plugin from the Vagrant core code and molding it to fit SSHFS.
 
 ## Modes of Operation
 
-### Sharing Vagrant Host Directory to Vagrant Guest - 99% of users
+### Sharing Vagrant Host Directory to Vagrant Guest - 98% of users
 
 This plugin uses SSHFS slave mounts 
 (see [link](https://github.com/dustymabe/vagrant-sshfs/issues/11))
@@ -57,6 +57,19 @@ forwarding or username/password for authentication for this.
 See [Options](#options-specific-to-arbitrary-host-mounting) and 
 [Appendix A](#appendix-a-using-keys-and-forwarding-ssh-agent) for
 more information.
+
+### Sharing Vagrant Guest Directory to Vagrant Host - 1% of users
+
+*NOTE:* This option is dangerous as data will be destroy upon `vagrant destroy`
+
+This plugin allows you to share a folder from a Vagrant guest into the
+host. If you have workloads where there are a lot of disk intensive
+operations (such as compilation) it may be ideal to have the files
+live in the guest where the disk intensive operations would occur.
+For discussion see [Issue #7](https://github.com/dustymabe/vagrant-sshfs/issues/7).
+
+See [Options](#options-specific-to-reverse-mounting-guest-host-mount)
+for more information on how to enable this type of mount.
 
 ## Getting Started
 
@@ -157,6 +170,23 @@ config.vm.synced_folder "/path/on/host", "/path/on/guest",
     ssh_opts_append: "-o Compression=yes -o CompressionLevel=5",
     sshfs_opts_append: "-o auto_cache -o cache_timeout=115200",
     disabled: false
+```
+
+### Options Specific to Reverse Mounting (Guest->Host Mount)
+
+If your host has the `sshfs` software installed then the following 
+options enable mounting a folder from a Vagrant Guest into the 
+Vagrant Host:
+
+- `reverse`
+    - This can be set to 'true' to enable reverse mounting a guest
+      folder into the Vagrant host.
+
+An example snippet from a `Vagrantfile` where we want to mount `/data`
+on the guest into `/guest/data` on the host:
+
+```
+config.vm.synced_folder "/guest/data", "/data", type: 'sshfs', reverse: true
 ```
 
 ## Appendix A: Using Keys and Forwarding SSH Agent

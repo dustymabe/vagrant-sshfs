@@ -7,6 +7,10 @@ en:
         unmounting: Unmounting SSHFS shared folder...
         unmounting_folder: |-
           Unmounting SSHFS shared folder mounted at %{guestpath}
+        reverse_unmounting_folder: |-
+          Unmounting SSHFS shared folder mounted at host's %{hostpath}
+        reverse_mounting_folder: |-
+          mounting folder via SSHFS: guestpath:%{guestpath} => hostpath:%{hostpath}
         slave_mounting_folder: |-
           Mounting folder via SSHFS: %{hostpath} => %{guestpath}
         normal_mounting_folder: |-
@@ -18,9 +22,9 @@ en:
         detected_host_ip: |-
           Detected host IP address is '%{ip}'
         already_mounted: |-
-          The folder %{folder} in the guest already mounted.
+          The folder %{folder} in the %{location} is already mounted.
         not_mounted: |-
-          The folder %{folder} in the guest is not mounted.
+          The folder %{folder} in the %{location} is not mounted.
       errors:
         communicator_not_ready: |-
           The machine is reporting that it is not ready to communicate via ssh. Verify
@@ -55,6 +59,13 @@ en:
           Stderr from the command:
 
           %{stderr}
+        reverse_mount_failed: |-
+          Mounting SSHFS shared folder via reverse SSHFS mount failed. Please
+          look at the below output from from the processes that were run.
+
+          SSHFS command output:
+
+          %{sshfs_output}
         slave_mount_failed: |-
           Mounting SSHFS shared folder via slave SSHFS mount failed. Please
           look at the below STDERR output from the processes that were run.
