@@ -7,7 +7,7 @@ end
 # Only load the gem on Windows since it replaces some methods in Ruby's 
 # Process class. Also load it here before Process.uid is called the first 
 # time by Vagrant. The Process.create() function actually gets used in
-# lib/vagrant-sshfs/cap/linux/sshfs_mount.rb
+# lib/vagrant-sshfs/cap/guest/linux/sshfs_forward_mount.rb
 if Vagrant::Util::Platform.windows?
   require 'win32/process'
 end
