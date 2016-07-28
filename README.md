@@ -2,9 +2,9 @@
 
 This is a vagrant plugin that adds synced folder support for mounting
 folders from the Vagrant host into the Vagrant guest via
-[SSHFS](https://github.com/libfuse/sshfs). It does this by executing
-the `SSHFS` client software within the guest, which creates and SSH
-connection from the Vagrant guest back to the Vagrant host. 
+[SSHFS](https://github.com/libfuse/sshfs). In the default mode it does 
+this by executing the `SSHFS` client software within the guest, which 
+creates an SSH connection from the Vagrant guest back to the Vagrant host. 
 
 The benefits of this approach:
 - Works on any host platform and hypervisor type
@@ -60,7 +60,7 @@ more information.
 
 ### Sharing Vagrant Guest Directory to Vagrant Host - 1% of users
 
-*NOTE:* This option is dangerous as data will be destroy upon `vagrant destroy`
+*NOTE:* This option is dangerous as data will be destroyed upon `vagrant destroy`
 
 This plugin allows you to share a folder from a Vagrant guest into the
 host. If you have workloads where there are a lot of disk intensive
