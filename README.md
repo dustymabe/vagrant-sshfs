@@ -189,6 +189,29 @@ on the guest into `/guest/data` on the host:
 config.vm.synced_folder "/guest/data", "/data", type: 'sshfs', reverse: true
 ```
 
+## FAQ
+
+Here are some answers to some frequently asked questions:
+
+### Why do new files take time to appear inside the guest?
+
+Sometimes it can take time for files to appear on the other end of the
+sshfs mount. An example would be I create a file on my host system and
+then it doesn't show up inside the guest mount for 10 to 20 seconds.
+This is because of caching that SSHFS does to improve performance.
+Performance vs accuracy is always going to be a trade-off. If you'd
+like to disable caching completely you can disable caching completely
+by appending the `cache=no` SSHFS option to the synced folder
+definition in the Vagrantfile like so:
+
+```
+config.vm.synced_folder "/path/on/host", "/path/on/guest",
+    type: "sshfs", sshfs_opts_append: "-o cache=no"
+```
+
+All caching options that are available to sshfs can be added/modified
+in this same manner.
+
 ## Appendix A: Using Keys and Forwarding SSH Agent
 
 When [sharing an arbitrary host directory](#sharing-arbitrary-host-directory-to-vagrant-guest---1-of-users)
