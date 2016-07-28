@@ -56,9 +56,16 @@ en:
 
           %{stderr}
         slave_mount_failed: |-
-          Mounting SSHFS shared via slave SSHFS mount failed. Please look at your 
-          terminal scrollback to look for any error messages from the processes that 
-          were run.
+          Mounting SSHFS shared folder via slave SSHFS mount failed. Please
+          look at the below STDERR output from the processes that were run.
+
+          SSH command:
+
+          %{ssh_stderr}
+
+          SFTP command:
+
+          %{sftp_stderr}
         unmount_failed: |-
           Unmount the SSHFS mount failed.
 
