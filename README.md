@@ -135,7 +135,7 @@ An example snippet from a `Vagrantfile`:
 config.vm.synced_folder "/path/on/host", "/path/on/guest",
     ssh_opts_append: "-o Compression=yes -o CompressionLevel=5",
     sshfs_opts_append: "-o auto_cache -o cache_timeout=115200",
-    disabled: false
+    disabled: false, type: "sshfs"
 ```
 
 ### Options Specific to Arbitrary Host Mounting
@@ -169,7 +169,7 @@ config.vm.synced_folder "/path/on/host", "/path/on/guest",
     ssh_host: "somehost.com", ssh_username: "fedora",
     ssh_opts_append: "-o Compression=yes -o CompressionLevel=5",
     sshfs_opts_append: "-o auto_cache -o cache_timeout=115200",
-    disabled: false
+    disabled: false, type: "sshfs"
 ```
 
 ### Options Specific to Reverse Mounting (Guest->Host Mount)
