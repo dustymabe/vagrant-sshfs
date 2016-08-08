@@ -2,18 +2,10 @@ require "log4r"
 require "vagrant/util/retryable"
 require "tempfile"
 
-# This is already done for us in lib/vagrant-sshfs.rb. We needed to
-# do it there before Process.uid is called the first time by Vagrant
-# This provides a new Process.create() that works on Windows.
-if Vagrant::Util::Platform.windows?
-  require 'win32/process'
-end
-
 module VagrantPlugins
   module GuestLinux
     module Cap
       class MountSSHFS
-        extend Vagrant::Util::Retryable
         @@logger = Log4r::Logger.new("vagrant::synced_folders::sshfs_mount")
 
         def self.sshfs_forward_is_folder_mounted(machine, opts)
@@ -136,82 +128,47 @@ module VagrantPlugins
           ssh_opts+= ' -o UserKnownHostsFile=/dev/null '
           ssh_opts+= ' -F /dev/null ' # Don't pick up options from user's config
           ssh_cmd = ssh_path + ssh_opts + ' ' + ssh_opts_append + ' ' + machine.ssh_info[:host]
-          ssh_cmd+= ' "' + sshfs_cmd + '"'
+          ssh_cmd+= " '" + sshfs_cmd + "'"
 
           # Log some information
           @@logger.debug("sftp-server cmd: #{sftp_server_cmd}")
           @@logger.debug("ssh cmd: #{ssh_cmd}")
-          machine.ui.info(I18n.t("vagrant.sshfs.actions.slave_mounting_folder", 
+          machine.ui.info(I18n.t("vagrant.sshfs.actions.slave_mounting_folder",
                           hostpath: hostpath, guestpath: expanded_guest_path))
 
-          # Create two named pipes for communication between sftp-server and
-          # sshfs running in slave mode
-          r1, w1 = IO.pipe # reader/writer from pipe1
-          r2, w2 = IO.pipe # reader/writer from pipe2
-
-          # Log STDERR to predictable files so that we can inspect them
-          # later in case things go wrong. We'll use the machines data
-          # directory (i.e. .vagrant/machines/default/virtualbox/) for this
-          f1path = machine.data_dir.join('vagrant_sshfs_sftp_server_stderr.txt')
-          f2path = machine.data_dir.join('vagrant_sshfs_ssh_stderr.txt')
-          f1 = File.new(f1path, 'w+')
-          f2 = File.new(f2path, 'w+')
-
-          # The way this works is by hooking up the stdin+stdout of the
-          # sftp-server process to the stdin+stdout of the sshfs process
-          # running inside the guest in slave mode. An illustration is below:
-          # 
-          #          stdout => w1      pipe1         r1 => stdin 
-          #         />------------->==============>----------->\
-          #        /                                            \
-          #        |                                            |
-          #    sftp-server (on vm host)                      sshfs (inside guest)
-          #        |                                            |
-          #        \                                            /
-          #         \<-------------<==============<-----------</
-          #          stdin <= r2        pipe2         w2 <= stdout 
-          #
-          # Wire up things appropriately and start up the processes
+          # We are going to spawn twice. This is required mainly for Windows were
+          # processes executing the Vagrant command and echoing its IO, cannot
+          # exit even though the main Ruby process exits.
+          # We are going to spawn a independent Ruby process first in which we then
+          # set up the IO pipes for sshfs.
+          ensure_ruby_on_path
+          create_processes_path = Pathname(__dir__).join('create_processes.rb')
           if Vagrant::Util::Platform.windows?
-            # Need to handle Windows differently. Kernel.spawn fails to work, if the shell creating the process is closed.
-            # See https://github.com/dustymabe/vagrant-sshfs/issues/31
-            Process.create(:command_line => sftp_server_cmd,
+            Process.create(:command_line => %Q[ruby "#{create_processes_path}" "#{machine.env.gems_path}" "#{sftp_server_cmd}" "#{ssh_cmd}" "#{machine.data_dir}" "true"],
                            :creation_flags => Process::DETACHED_PROCESS,
                            :process_inherit => false,
-                           :thread_inherit => true,
-                           :startup_info => {:stdin => w2, :stdout => r1, :stderr => f1})
-
-            Process.create(:command_line => ssh_cmd,
-                           :creation_flags => Process::DETACHED_PROCESS,
-                           :process_inherit => false,
-                           :thread_inherit => true,
-                           :startup_info => {:stdin => w1, :stdout => r2, :stderr => f2})
+                           :thread_inherit => true)
           else
-            p1 = spawn(sftp_server_cmd, :out => w2, :in => r1, :err => f1, :pgroup => true)
-            p2 = spawn(ssh_cmd,         :out => w1, :in => r2, :err => f2, :pgroup => true)
-
-            # Detach from the processes so they will keep running
+            p1 = spawn('ruby', create_processes_path.to_s, machine.env.gems_path.to_s, sftp_server_cmd, ssh_cmd, machine.data_dir.to_s, 'false', :pgroup => true)
             Process.detach(p1)
-            Process.detach(p2)
           end
 
           # Check that the mount made it
           mounted = false
-          for i in 0..6
-            machine.ui.info("Checking Mount..")
+          (0..6).each do
+            machine.ui.info('Checking Mount..')
             if self.sshfs_forward_is_folder_mounted(machine, opts)
               mounted = true
               break
             end
             sleep(2)
           end
-          if !mounted
-            f1.rewind # Seek to beginning of the file
-            f2.rewind # Seek to beginning of the file
-            error_class = VagrantPlugins::SyncedFolderSSHFS::Errors::SSHFSSlaveMountFailed
-            raise error_class, sftp_stderr: f1.read, ssh_stderr: f2.read
+          if mounted
+            machine.ui.info('Folder Successfully Mounted!')
+          else
+            machine.ui.error("Folder mount failed! Check #{machine.data_dir} for error log files.")
+            raise VagrantPlugins::SyncedFolderSSHFS::Errors::SSHFSSlaveMountFailed
           end
-          machine.ui.info("Folder Successfully Mounted!")
         end
 
         # Do a normal sshfs mount in which we will ssh into the guest
@@ -244,7 +201,7 @@ module VagrantPlugins
           machine.ui.info(I18n.t("vagrant.sshfs.actions.normal_mounting_folder", 
                           user: username, host: host, 
                           hostpath: hostpath, guestpath: expanded_guest_path))
-          
+
           # Build up the command and connect
           error_class = VagrantPlugins::SyncedFolderSSHFS::Errors::SSHFSNormalMountFailed
           cmd = echopipe 
@@ -252,12 +209,30 @@ module VagrantPlugins
           cmd+= ssh_opts + ' ' + ssh_opts_append + ' '
           cmd+= sshfs_opts + ' ' + sshfs_opts_append + ' '
           cmd+= "#{username}@#{host}:'#{hostpath}' #{expanded_guest_path}"
-          retryable(on: error_class, tries: 3, sleep: 3) do
+          Vagrant::Util::Retryable.retryable(on: error_class, tries: 3, sleep: 3) do
             machine.communicate.sudo(
               cmd, error_class: error_class, error_key: :normal_mount_failed)
           end
+        end
+
+        # On a machine with just Vagrant installed there might be no other Ruby except the
+        # one bundled with Vagrant. Let's make sure the embedded bin directory containing
+        # the Ruby executable is added to the PATH.
+        def self.ensure_ruby_on_path
+          vagrant_binary = Vagrant::Util::Which.which('vagrant')
+          vagrant_binary = File.realpath(vagrant_binary) if File.symlink?(vagrant_binary)
+          # in a Vagrant installation the Ruby executable is in ../embedded/bin relative to the vagrant executable
+          # we don't use File.join here, since even on Cygwin we want a Windows path - see https://github.com/vagrant-landrush/landrush/issues/237
+          if Vagrant::Util::Platform.windows?
+            separator = '\\'
+          else
+            separator = '/'
+          end
+          embedded_bin_dir = File.dirname(File.dirname(vagrant_binary)) + separator + 'embedded' + separator + 'bin'
+          ENV['PATH'] = embedded_bin_dir + File::PATH_SEPARATOR + ENV['PATH'] if File.exist?(embedded_bin_dir)
         end
       end
     end
   end
 end
+
