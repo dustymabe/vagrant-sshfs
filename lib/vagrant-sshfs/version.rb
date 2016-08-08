@@ -1,5 +1,5 @@
 module VagrantPlugins
   module SyncedFolderSSHFS
-    VERSION = "1.1.0.dev"
+    VERSION = "1.2.0"
   end
 end
