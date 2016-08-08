@@ -1,0 +1,39 @@
+
+Make sure to bump version and commit
+
+Install git-evtag
+
+git-evtag sign v1.2.0
+
+-> In vim add thanks to contributors - grab info with
+   git log --no-merges --pretty=format:"%h - %an - %s"
+   and
+   git log --no-merges --pretty=format:"%h - %ae - %s"
+   
+
+-> In vim add commit log - grab with 
+   git log --no-merges --pretty=format:"%h %s"
+
+-> In vim add release message - see previous tag for example
+
+close and type in password for signing
+
+verify with git-evtag verify v1.2.0
+verify with git verify-tag v1.2.0 
+
+git push
+git push --tags 
+
+# Build with bundle exec rake build (inside viv VM)
+bundle exec rake build
+
+# Sign the output
+gpg --armor --detach-sign pkg/vagrant-sshfs-1.2.0.gem
+$ ls pkg/vagrant-sshfs-1.2.0.gem* 
+pkg/vagrant-sshfs-1.2.0.gem  pkg/vagrant-sshfs-1.2.0.gem.asc
+
+# Update release notes and upload files on github
+
+# push to rubygems with:
+gem push pkg/vagrant-sshfs-1.2.0.gem
+
