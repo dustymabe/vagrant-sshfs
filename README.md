@@ -19,7 +19,7 @@ The drawbacks with this approach:
 
 `sftp-server` is usually provided by SSH server software so it already
 exists on Linux/Mac. On windows you only need to install
-[openssh](https://cygwin.com/cgi-bin2/package-cat.cgi?file=x86_64%2Fopenssh%2Fopenssh-7.2p1-1&grep=openssh)
+[openssh](https://cygwin.com/cgi-bin2/package-grep.cgi?grep=openssh&arch=x86_64)
 via [cygwin](https://cygwin.com/) and you will get `sftp-server`.
 
 ## History
