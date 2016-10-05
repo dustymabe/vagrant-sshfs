@@ -176,10 +176,11 @@ module VagrantPlugins
           sshfs_cmd+= sshfs_opts + ' ' + sshfs_opts_append + ' '
 
           # The ssh command to connect to guest and then launch sshfs
+          # Note the backslash escapes for IdentityFile - handles spaces in key path
           ssh_opts = opts[:ssh_opts]
           ssh_opts+= ' -o User=' + machine.ssh_info[:username]
           ssh_opts+= ' -o Port=' + machine.ssh_info[:port].to_s
-          ssh_opts+= ' -o IdentityFile=' + machine.ssh_info[:private_key_path][0]
+          ssh_opts+= ' -o "IdentityFile=\"' + machine.ssh_info[:private_key_path][0] + '\""'
           ssh_opts+= ' -o UserKnownHostsFile=/dev/null '
           ssh_opts+= ' -F /dev/null ' # Don't pick up options from user's config
           ssh_cmd = ssh_path + ssh_opts + ' ' + ssh_opts_append + ' ' + machine.ssh_info[:host]
