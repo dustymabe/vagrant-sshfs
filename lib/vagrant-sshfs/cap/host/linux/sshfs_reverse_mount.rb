@@ -75,9 +75,10 @@ module VagrantPlugins
           opts[:ssh_opts]+= ' -o ServerAliveInterval=30 '  # send keepalives
 
           # SSH connection options
+          # Note the backslash escapes for IdentityFile - handles spaces in key path
           ssh_opts = opts[:ssh_opts]
           ssh_opts+= ' -o Port=' + machine.ssh_info[:port].to_s
-          ssh_opts+= ' -o IdentityFile=' + machine.ssh_info[:private_key_path][0]
+          ssh_opts+= ' -o "IdentityFile=\"' + machine.ssh_info[:private_key_path][0] + '\""'
           ssh_opts+= ' -o UserKnownHostsFile=/dev/null '
           ssh_opts+= ' -F /dev/null ' # Don't pick up options from user's config
 
