@@ -15,14 +15,18 @@ toc::[]
 [[considerations]]
 == Considerations
 
-The benefits of this approach: - Works on any host platform and
-hypervisor type - Windows, Linux, Mac OS X - Virtualbox, Libvirt,
-Hyper-V, VMWare - Seamlessly works on remote Vagrant solutions - Works
-with vagrant aws/openstack/etc.. plugins
+The benefits of this approach: 
 
-The drawbacks with this approach: - Performance is worse than an
-implementation like NFS - There must be `sftp-server` software on the
-Vagrant host
+* Works on any host platform and hypervisor type
+** Windows, Linux, Mac OS X
+** Virtualbox, Libvirt, Hyper-V, VMWare
+* Seamlessly works on remote Vagrant solutions
+** Works with vagrant aws/openstack/etc.. plugins
+
+The drawbacks with this approach:
+
+* Performance is worse than an implementation like NFS
+* There must be `sftp-server` software on the Vagrant host
 
 `sftp-server` is usually provided by SSH server software so it already
 exists on Linux/Mac. On windows you only need to install
@@ -246,10 +250,10 @@ link:#sharing-arbitrary-host-directory-to-vagrant-guest---1-of-users[sharing
 an arbitrary host directory] you may want a completely non-interactive
 experience. You can either hard code your password in the Vagrantfile or
 you can use SSH keys. A few guides for setting up ssh keys and key
-forwarding are on Github: -
-https://help.github.com/articles/generating-ssh-keys[Key Generation] -
-https://developer.github.com/guides/using-ssh-agent-forwarding/[Key
-Forwarding]
+forwarding are on Github: 
+
+* https://help.github.com/articles/generating-ssh-keys[Key Generation]
+* https://developer.github.com/guides/using-ssh-agent-forwarding/[Key Forwarding]
 
 The idea is that if `key1` is a key that is authorized to log in to the
 Vagrant host ,meaning there is an entry for `key1` in the
