@@ -50,8 +50,8 @@ folder plugin from the Vagrant core code and molding it to fit SSHFS.
 [[modes-of-operation]]
 == Modes of Operation
 
-[[sharing-vagrant-host-directory-to-vagrant-guest---98-of-users]]
-=== Sharing Vagrant Host Directory to Vagrant Guest - 98% of users
+[[sharing-vagrant-host-directory-to-vagrant-guest---94-of-users]]
+=== Sharing Vagrant Host Directory to Vagrant Guest - 94% of users
 
 This plugin uses SSHFS slave mounts (see
 https://github.com/dustymabe/vagrant-sshfs/issues/11[link]) to mount a
@@ -75,8 +75,8 @@ See link:#options-specific-to-arbitrary-host-mounting[Options] and
 link:#appendix-a-using-keys-and-forwarding-ssh-agent[Appendix A] for
 more information.
 
-[[sharing-vagrant-guest-directory-to-vagrant-host---1-of-users]]
-=== Sharing Vagrant Guest Directory to Vagrant Host - 1% of users
+[[sharing-vagrant-guest-directory-to-vagrant-host---5-of-users]]
+=== Sharing Vagrant Guest Directory to Vagrant Host - 5% of users
 
 _NOTE:_ This option is dangerous as data will be destroyed upon
 `vagrant destroy`

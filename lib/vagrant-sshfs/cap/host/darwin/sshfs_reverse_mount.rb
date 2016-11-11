@@ -3,7 +3,7 @@ require "vagrant/util/retryable"
 require "tempfile"
 
 module VagrantPlugins
-  module HostLinux
+  module HostDarwin
     module Cap
       class MountSSHFS
         extend Vagrant::Util::Retryable
@@ -15,9 +15,10 @@ module VagrantPlugins
           hostpath.gsub!("'", "'\\\\''")
           hostpath = hostpath.chomp('/') # remove trailing / if exists
           hostpath = File.expand_path(hostpath) # get the absolute path of the file
-          mounts = File.open('/proc/mounts', 'r')
-          mounts.each_line do |line|
-            if line.split()[1] == hostpath
+          mount_cmd = Vagrant::Util::Which.which('mount')
+          result = Vagrant::Util::Subprocess.execute(mount_cmd)
+          result.stdout.each_line do |line|
+            if line.split()[2] == hostpath
               mounted = true
               break
             end
@@ -155,9 +156,10 @@ module VagrantPlugins
                                  hostpath: hostpath))
 
           # Build up the command and connect
+          # on linux it is fusermount -u, on mac it is just umount
           error_class = VagrantPlugins::SyncedFolderSSHFS::Errors::SSHFSUnmountFailed
-          fusermount_cmd = Vagrant::Util::Which.which('fusermount')
-          cmd = "#{fusermount_cmd} -u #{hostpath}"
+          umount_cmd = Vagrant::Util::Which.which('umount')
+          cmd = "#{umount_cmd} #{hostpath}"
           result = Vagrant::Util::Subprocess.execute(*cmd.split())
           if result.exit_code != 0
             raise error_class, command: cmd, stdout: result.stdout, stderr: result.stderr
