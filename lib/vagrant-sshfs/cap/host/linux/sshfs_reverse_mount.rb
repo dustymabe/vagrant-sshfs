@@ -2,13 +2,6 @@ require "log4r"
 require "vagrant/util/retryable"
 require "tempfile"
 
-# This is already done for us in lib/vagrant-sshfs.rb. We needed to
-# do it there before Process.uid is called the first time by Vagrant
-# This provides a new Process.create() that works on Windows.
-if Vagrant::Util::Platform.windows?
-  require 'win32/process'
-end
-
 module VagrantPlugins
   module HostLinux
     module Cap
