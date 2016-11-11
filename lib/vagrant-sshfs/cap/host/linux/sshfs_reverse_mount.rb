@@ -14,6 +14,7 @@ module VagrantPlugins
           hostpath = opts[:hostpath].dup
           hostpath.gsub!("'", "'\\\\''")
           hostpath = hostpath.chomp('/') # remove trailing / if exists
+          hostpath = File.expand_path(hostpath) # get the absolute path of the file
           mounts = File.open('/proc/mounts', 'r')
           mounts.each_line do |line|
             if line.split()[1] == hostpath
