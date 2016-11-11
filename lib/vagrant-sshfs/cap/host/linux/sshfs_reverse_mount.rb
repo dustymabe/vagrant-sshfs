@@ -14,8 +14,6 @@ module VagrantPlugins
           hostpath = opts[:hostpath].dup
           hostpath.gsub!("'", "'\\\\''")
           hostpath = hostpath.chomp('/') # remove trailing / if exists
-          cat_cmd = Vagrant::Util::Which.which('cat')
-          result = Vagrant::Util::Subprocess.execute(cat_cmd, '/proc/mounts')
           mounts = File.open('/proc/mounts', 'r')
           mounts.each_line do |line|
             if line.split()[1] == hostpath
