@@ -1,7 +1,13 @@
 
-Make sure to bump version and commit
 
-Install git-evtag
+# Run viv tests
+cd /guests/sharedfolder/code/github.com/dustymabe/vagrant-sshfs/test/libvirt
+vagrant up
+follow README for running tests
+
+# Make sure to bump version in lib/vagrant-sshfs/version.rb and commit
+
+# Install git-evtag
 
 git-evtag sign v1.2.0
 
