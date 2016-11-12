@@ -13,17 +13,24 @@ export THIRD_PARTY_HOST='192.168.121.73'
 export THIRD_PARTY_HOST_USER='vagrant'                                                                                                                                                 
 export THIRD_PARTY_HOST_PASS='vagrant'
 
-# Next vagrant up - will do 3 mounts (normal, slave, reverse).
+# Next vagrant up - will do 4 mounts
+#  - slave
+#  - slave with sym link
+#  - normal
+#  - reverse
 vagrant up
 
 # Next run the script to test the mounts:
 $ bash dotests.sh 
-Testing normal mount!
-a57e39fa692f294e860349a9451be67c
-Testing slave mount!
-e2c4ceac71dc414cb3ed864cff04a917
+Testing slave forward mount!
+        d635332fe7aa4d4fb48e5cb9357bdedf
+Testing slave forward mount with a symlink!
+        d635332fe7aa4d4fb48e5cb9357bdedf
+Testing normal forward mount!
+        6ccc3034df924bd289dd16205bf3d629
 Testing reverse mount!
-508619e7e68e446c84d1fcdf7e0dc577
+        508619e7e68e446c84d1fcdf7e0dc577
 
-# We are printing out the machine-id under each mount to prove each
-# mount is from a different machine.
+# We are printing out the machine-id under each mount. The first two
+should be the same, because they are from the same machine. The last
+two should be different.
