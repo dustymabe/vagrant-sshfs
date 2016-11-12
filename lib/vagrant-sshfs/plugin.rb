@@ -65,6 +65,11 @@ module VagrantPlugins
         VagrantPlugins::GuestLinux::Cap::MountSSHFS
       end
 
+      guest_capability("linux", "sshfs_get_absolute_path") do
+        require_relative "cap/guest/linux/sshfs_get_absolute_path"
+        VagrantPlugins::GuestLinux::Cap::SSHFSGetAbsolutePath
+      end
+
       guest_capability("redhat", "sshfs_installed") do
         require_relative "cap/guest/redhat/sshfs_client"
         VagrantPlugins::GuestRedHat::Cap::SSHFSClient

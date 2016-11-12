@@ -33,6 +33,10 @@ module VagrantPlugins
       class SSHFSExeNotAvailable < SSHFSError
         error_key(:exe_not_in_host)
       end
+
+      class SSHFSGetAbsolutePathFailed < SSHFSError
+        error_key(:get_absolute_path_failed)
+      end
     end
   end
 end

@@ -35,6 +35,8 @@ en:
           try again.
         sshfs_not_in_guest: |-
           The necessary SSHFS software is not installed in the guest. 
+        get_absolute_path_failed: |-
+          Could not get the absolute path of the folder within the guest '%{path}'
         install_failed_arch: |-
           The install of the sshfs client software failed. On Arch this is most likely
           because the package lists are not up to date [1] and partial upgrades are not
