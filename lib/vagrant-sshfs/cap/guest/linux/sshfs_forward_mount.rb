@@ -149,8 +149,8 @@ module VagrantPlugins
           # won't get shared by default. See: 
           # https://msdn.microsoft.com/en-us/library/windows/desktop/ms724935(v=vs.85).aspx
           # 
-          bool = Process.send(:SetHandleInformation,
-          handle, Process::Constants::HANDLE_FLAG_INHERIT, 0)
+          bool = Process.send(:SetHandleInformation, handle,
+                              Process::Constants::HANDLE_FLAG_INHERIT, 0)
           raise SystemCallError.new("SetHandleInformation", FFI.errno) unless bool
         end
 
