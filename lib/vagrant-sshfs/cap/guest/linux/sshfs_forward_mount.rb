@@ -106,7 +106,7 @@ module VagrantPlugins
 
         protected
 
-        def self.windows_uninherit_handles
+        def self.windows_uninherit_handles(machine)
           # For win32-process Process.create, if we pass any file handles to the 
           # underlying process for stdin/stdout/stderr then all file handles are 
           # inherited by default. We'll explicitly go through and set all Handles
@@ -115,12 +115,27 @@ module VagrantPlugins
           # https://github.com/djberg96/win32-process/blob/6b380f450aebb69d44bb7accd958ecb6b9e1d246/lib/win32/process.rb#L445-L447
           # bInheritHandles from https://msdn.microsoft.com/en-us/library/windows/desktop/ms682425(v=vs.85).aspx
           # 
+          # In 6f285cd we made it so that we would uninherit all filehandles by
+          # default on windows. Some users have reported that this operation
+          # is erroring because `The parameter is incorrect.`. See #52
+          # We will make the uninheriting operation best effort. The rationale 
+          # is that if a file handle was not able to be set to uninheritable 
+          # then it probably wasn't one that would get inherited in the first place.
+          #
           # For each open IO object 
           ObjectSpace.each_object(IO) do |io|
             if !io.closed?
               fileno = io.fileno 
               @@logger.debug("Setting file handle #{fileno} to not be inherited")
-              self.windows_uninherit_handle(fileno)
+              begin
+                self.windows_uninherit_handle(fileno)
+              rescue SystemCallError => error
+                msg = "Warning: couldn't set file handle #{fileno} to not be inherited\n"
+                msg+= "Message: " + error.message + "\n"
+                msg+= "Continuing in best effort...."
+                machine.ui.warn(msg)
+                @@logger.warn(msg)
+              end
             end
           end
         end
@@ -130,7 +145,8 @@ module VagrantPlugins
           # module by calling  For each open IO object. Much of this code was copied from 
           # that module. We access the private methods by using the object.send(:method, args)
           # technique. In the future we want to get a patch upstream so we don't need to
-          # access privat methods.
+          # access private methods. Upstream request is here:
+          # https://github.com/djberg96/win32-process/pulls
 
           # Get the windows IO handle and make sure we were successful getting it
           handle = Process.send(:get_osfhandle, fileno)
@@ -148,8 +164,8 @@ module VagrantPlugins
           # won't get shared by default. See: 
           # https://msdn.microsoft.com/en-us/library/windows/desktop/ms724935(v=vs.85).aspx
           # 
-          bool = Process.send(:SetHandleInformation,
-          handle, Process::Constants::HANDLE_FLAG_INHERIT, 0)
+          bool = Process.send(:SetHandleInformation, handle,
+                              Process::Constants::HANDLE_FLAG_INHERIT, 0)
           raise SystemCallError.new("SetHandleInformation", FFI.errno) unless bool
         end
 
@@ -225,7 +241,7 @@ module VagrantPlugins
             # For windows we need to set it so not all file handles are inherited
             # by default. See https://github.com/dustymabe/vagrant-sshfs/issues/41
             # The r1,r2,w1,w2,f1,f2 we pass below will get set back to be shared
-            self.windows_uninherit_handles
+            self.windows_uninherit_handles(machine)
             # For windows, we are using win32-process' Process.create because ruby
             # doesn't properly detach processes. See https://github.com/dustymabe/vagrant-sshfs/issues/31
             Process.create(:command_line => sftp_server_cmd,
