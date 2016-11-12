@@ -18,13 +18,14 @@ module VagrantPlugins
 
         def self.sshfs_forward_is_folder_mounted(machine, opts)
           mounted = false
-          # expand the guest path so we can handle things like "~/vagrant"
-          expanded_guest_path = machine.guest.capability(
-            :shell_expand_guest_path, opts[:guestpath])
+          # find the absolute path so that we can properly check if it is mounted
+          # https://github.com/dustymabe/vagrant-sshfs/issues/44
+          absolute_guest_path = machine.guest.capability(
+            :sshfs_get_absolute_path, opts[:guestpath])
           machine.communicate.execute("cat /proc/mounts") do |type, data|
             if type == :stdout
               data.each_line do |line|
-                if line.split()[1] == expanded_guest_path
+                if line.split()[1] == absolute_guest_path
                   mounted = true
                   break
                 end
