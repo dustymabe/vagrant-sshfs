@@ -130,7 +130,8 @@ module VagrantPlugins
           # module by calling  For each open IO object. Much of this code was copied from 
           # that module. We access the private methods by using the object.send(:method, args)
           # technique. In the future we want to get a patch upstream so we don't need to
-          # access privat methods.
+          # access private methods. Upstream request is here:
+          # https://github.com/djberg96/win32-process/pulls
 
           # Get the windows IO handle and make sure we were successful getting it
           handle = Process.send(:get_osfhandle, fileno)
