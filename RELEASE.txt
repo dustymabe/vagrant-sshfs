@@ -6,10 +6,11 @@ vagrant up
 follow README for running tests
 
 # Make sure to bump version in lib/vagrant-sshfs/version.rb and commit
+# DO NOT TAG YET
 
-# Install git-evtag
 
-git-evtag sign v1.2.0
+# Craft a commit message for the tag. View the commit message for
+  a previous tag by running: git tag -l -n100 v1.2.1
 
 -> In vim add thanks to contributors - grab info with
    git log --no-merges --pretty=format:"%h - %an - %s"
@@ -21,6 +22,11 @@ git-evtag sign v1.2.0
    git log --no-merges --pretty=format:"%h %s"
 
 -> In vim add release message - see previous tag for example
+
+# After crafting message then install git-evtag and sign
+
+git-evtag sign vX.X.X
+
 
 close and type in password for signing
 
