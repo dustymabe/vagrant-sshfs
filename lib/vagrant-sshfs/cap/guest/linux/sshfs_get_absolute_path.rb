@@ -4,7 +4,7 @@ module VagrantPlugins
       class SSHFSGetAbsolutePath
         def self.sshfs_get_absolute_path(machine, path)
           abs_path = ""
-          machine.communicate.execute("readlink -f #{path}") do |type, data|
+          machine.communicate.execute("readlink -f #{path}", sudo: true) do |type, data|
             if type == :stdout
               abs_path = data
             end

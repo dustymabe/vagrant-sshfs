@@ -22,7 +22,7 @@ module VagrantPlugins
 
           # If the path doesn't exist at all in the machine then we
           # can safely say it is not mounted
-          exists = machine.communicate.test("test -e #{guest_path}")
+          exists = machine.communicate.test("test -e #{guest_path}", sudo: true)
           return false unless exists
 
           # find the absolute path so that we can properly check if it is mounted
