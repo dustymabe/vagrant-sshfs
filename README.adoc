@@ -33,6 +33,9 @@ exists on Linux/Mac. On windows you only need to install
 https://cygwin.com/cgi-bin2/package-grep.cgi?grep=openssh&arch=x86_64[openssh]
 via https://cygwin.com/[cygwin] and you will get `sftp-server`.
 
+Also, we recommend running vagrant from the cygwin provided terminal. There have
+been issues with other shells leading to problems with mounts.
+
 
 [[history]]
 == History
