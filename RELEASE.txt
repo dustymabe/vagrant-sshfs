@@ -44,6 +44,13 @@ gpg --armor --detach-sign pkg/vagrant-sshfs-1.2.0.gem
 $ ls pkg/vagrant-sshfs-1.2.0.gem* 
 pkg/vagrant-sshfs-1.2.0.gem  pkg/vagrant-sshfs-1.2.0.gem.asc
 
+# make tar.gz and zip files
+git archive --format=tar.gz v1.3.0 > vagrant-sshfs-1.3.0.tar.gz
+gpg --armor --detach-sign vagrant-sshfs-1.3.0.tar.gz 
+git archive --format=zip v1.3.0 > vagrant-sshfs-1.3.0.zip
+gpg --armor --detach-sign vagrant-sshfs-1.3.0.zip 
+
+
 # Update release notes and upload files on github
 
 # push to rubygems with:
