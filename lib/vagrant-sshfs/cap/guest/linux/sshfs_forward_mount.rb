@@ -209,6 +209,12 @@ module VagrantPlugins
           ssh_opts+= ' -o "IdentityFile=\"' + machine.ssh_info[:private_key_path][0] + '\""'
           ssh_opts+= ' -o UserKnownHostsFile=/dev/null '
           ssh_opts+= ' -F /dev/null ' # Don't pick up options from user's config
+
+          # Use an SSH ProxyCommand when corresponding Vagrant setting is defined
+          if machine.ssh_info[:proxy_command]
+            ssh_opts+= " -o ProxyCommand=\"" + machine.ssh_info[:proxy_command] + "\""
+          end
+
           ssh_cmd = ssh_path + ssh_opts + ' ' + ssh_opts_append + ' ' + machine.ssh_info[:host]
           ssh_cmd+= ' "' + sshfs_cmd + '"'
 
