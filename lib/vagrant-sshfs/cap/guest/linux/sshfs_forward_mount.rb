@@ -16,6 +16,10 @@ module VagrantPlugins
         extend Vagrant::Util::Retryable
         @@logger = Log4r::Logger.new("vagrant::synced_folders::sshfs_mount")
 
+        def self.list_mounts_command
+          "cat /proc/mounts"
+        end
+
         def self.sshfs_forward_is_folder_mounted(machine, opts)
           mounted = false
           guest_path = opts[:guestpath]
@@ -31,7 +35,7 @@ module VagrantPlugins
             :sshfs_get_absolute_path, guest_path)
 
           # consult /proc/mounts to see if it is mounted or not
-          machine.communicate.execute("cat /proc/mounts") do |type, data|
+          machine.communicate.execute(self.list_mounts_command) do |type, data|
             if type == :stdout
               data.each_line do |line|
                 if line.split()[1] == absolute_guest_path
