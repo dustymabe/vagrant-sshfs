@@ -3,7 +3,7 @@ module VagrantPlugins
     module Cap
       class SSHFSClient
         def self.sshfs_install(machine)
-          # Install epel rpm if not installed 
+          # Install epel rpm if not installed
           if !epel_installed(machine)
             epel_install(machine)
           end
@@ -15,7 +15,7 @@ module VagrantPlugins
         def self.sshfs_installed(machine)
           machine.communicate.test("rpm -q fuse-sshfs")
         end
-        
+
         protected
 
         def self.epel_installed(machine)
@@ -26,7 +26,7 @@ module VagrantPlugins
           case machine.guest.capability("flavor")
             when :rhel_7
               machine.communicate.sudo("rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm")
-            when :rhel # rhel6 
+            when :rhel # rhel6
               machine.communicate.sudo("rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm")
           end
         end

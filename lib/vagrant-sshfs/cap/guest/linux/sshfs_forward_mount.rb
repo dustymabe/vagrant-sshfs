@@ -52,7 +52,7 @@ module VagrantPlugins
           # opts contains something like:
           #   { :type=>:sshfs,
           #     :guestpath=>"/sharedfolder",
-          #     :hostpath=>"/guests/sharedfolder", 
+          #     :hostpath=>"/guests/sharedfolder",
           #     :disabled=>false
           #     :ssh_host=>"192.168.1.1"
           #     :ssh_port=>"22"
@@ -79,7 +79,7 @@ module VagrantPlugins
           opts[:sshfs_opts]+= ' -o noauto_cache '# disable caching based on mtime
 
           # Add in some ssh options that are common to both mount methods
-          opts[:ssh_opts] = ' -o StrictHostKeyChecking=no '# prevent yes/no question 
+          opts[:ssh_opts] = ' -o StrictHostKeyChecking=no '# prevent yes/no question
           opts[:ssh_opts]+= ' -o ServerAliveInterval=30 '  # send keepalives
 
           # Do a normal mount only if the user provided host information
@@ -120,25 +120,25 @@ module VagrantPlugins
         protected
 
         def self.windows_uninherit_handles(machine)
-          # For win32-process Process.create, if we pass any file handles to the 
-          # underlying process for stdin/stdout/stderr then all file handles are 
+          # For win32-process Process.create, if we pass any file handles to the
+          # underlying process for stdin/stdout/stderr then all file handles are
           # inherited by default. We'll explicitly go through and set all Handles
           # to not be inheritable by default. See following links for more info
-          # 
+          #
           # https://github.com/djberg96/win32-process/blob/6b380f450aebb69d44bb7accd958ecb6b9e1d246/lib/win32/process.rb#L445-L447
           # bInheritHandles from https://msdn.microsoft.com/en-us/library/windows/desktop/ms682425(v=vs.85).aspx
-          # 
+          #
           # In 6f285cd we made it so that we would uninherit all filehandles by
           # default on windows. Some users have reported that this operation
           # is erroring because `The parameter is incorrect.`. See #52
-          # We will make the uninheriting operation best effort. The rationale 
-          # is that if a file handle was not able to be set to uninheritable 
+          # We will make the uninheriting operation best effort. The rationale
+          # is that if a file handle was not able to be set to uninheritable
           # then it probably wasn't one that would get inherited in the first place.
           #
-          # For each open IO object 
+          # For each open IO object
           ObjectSpace.each_object(IO) do |io|
             if !io.closed?
-              fileno = io.fileno 
+              fileno = io.fileno
               @@logger.debug("Setting file handle #{fileno} to not be inherited")
               begin
                 self.windows_uninherit_handle(fileno)
@@ -155,7 +155,7 @@ module VagrantPlugins
 
         def self.windows_uninherit_handle(fileno)
           # Right now we'll be doing this using private methods from the win32-process
-          # module by calling  For each open IO object. Much of this code was copied from 
+          # module by calling  For each open IO object. Much of this code was copied from
           # that module. We access the private methods by using the object.send(:method, args)
           # technique. In the future we want to get a patch upstream so we don't need to
           # access private methods. Upstream request is here:
@@ -174,15 +174,15 @@ module VagrantPlugins
           end
 
           # Now clear the HANDLE_FLAG_INHERIT from the HANDLE so that the handle
-          # won't get shared by default. See: 
+          # won't get shared by default. See:
           # https://msdn.microsoft.com/en-us/library/windows/desktop/ms724935(v=vs.85).aspx
-          # 
+          #
           bool = Process.send(:SetHandleInformation, handle,
                               Process::Constants::HANDLE_FLAG_INHERIT, 0)
           raise SystemCallError.new("SetHandleInformation", FFI.errno) unless bool
         end
 
-        # Perform a mount by running an sftp-server on the vagrant host 
+        # Perform a mount by running an sftp-server on the vagrant host
         # and piping stdin/stdout to sshfs running inside the guest
         def self.sshfs_slave_mount(machine, opts, hostpath, expanded_guest_path)
 
@@ -202,7 +202,7 @@ module VagrantPlugins
 
           # The remote sshfs command that will run (in slave mode)
           sshfs_opts+= ' -o slave '
-          sshfs_cmd = "sudo -E sshfs :#{hostpath} #{expanded_guest_path}" 
+          sshfs_cmd = "sudo -E sshfs :#{hostpath} #{expanded_guest_path}"
           sshfs_cmd+= sshfs_opts + ' ' + sshfs_opts_append + ' '
 
           # The ssh command to connect to guest and then launch sshfs
@@ -225,7 +225,7 @@ module VagrantPlugins
           # Log some information
           @@logger.debug("sftp-server cmd: #{sftp_server_cmd}")
           @@logger.debug("ssh cmd: #{ssh_cmd}")
-          machine.ui.info(I18n.t("vagrant.sshfs.actions.slave_mounting_folder", 
+          machine.ui.info(I18n.t("vagrant.sshfs.actions.slave_mounting_folder",
                           hostpath: hostpath, guestpath: expanded_guest_path))
 
           # Create two named pipes for communication between sftp-server and
@@ -244,8 +244,8 @@ module VagrantPlugins
           # The way this works is by hooking up the stdin+stdout of the
           # sftp-server process to the stdin+stdout of the sshfs process
           # running inside the guest in slave mode. An illustration is below:
-          # 
-          #          stdout => w1      pipe1         r1 => stdin 
+          #
+          #          stdout => w1      pipe1         r1 => stdin
           #         />------------->==============>----------->\
           #        /                                            \
           #        |                                            |
@@ -253,7 +253,7 @@ module VagrantPlugins
           #        |                                            |
           #        \                                            /
           #         \<-------------<==============<-----------</
-          #          stdin <= r2        pipe2         w2 <= stdout 
+          #          stdin <= r2        pipe2         w2 <= stdout
           #
           # Wire up things appropriately and start up the processes
           if Vagrant::Util::Platform.windows?
@@ -329,13 +329,13 @@ module VagrantPlugins
           end
 
           # Log some information
-          machine.ui.info(I18n.t("vagrant.sshfs.actions.normal_mounting_folder", 
-                          user: username, host: host, 
+          machine.ui.info(I18n.t("vagrant.sshfs.actions.normal_mounting_folder",
+                          user: username, host: host,
                           hostpath: hostpath, guestpath: expanded_guest_path))
-          
+
           # Build up the command and connect
           error_class = VagrantPlugins::SyncedFolderSSHFS::Errors::SSHFSNormalMountFailed
-          cmd = echopipe 
+          cmd = echopipe
           cmd+= "sshfs -p #{port} "
           cmd+= ssh_opts + ' ' + ssh_opts_append + ' '
           cmd+= sshfs_opts + ' ' + sshfs_opts_append + ' '

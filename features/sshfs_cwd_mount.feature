@@ -3,9 +3,9 @@
 # human readable. All Gherkin files have a .feature extension
 #
 # See more here: https://en.wikipedia.org/wiki/Cucumber_(software)
-# 
-# Additoinally in the setup/env.rb file we set up Aruba. Aruba is used 
-# to define most of the basic step definitions that we use as part of 
+#
+# Additoinally in the setup/env.rb file we set up Aruba. Aruba is used
+# to define most of the basic step definitions that we use as part of
 # the Gherkin syntax in this file.
 #
 # For more information on the step definitions provided see:
@@ -21,7 +21,7 @@ Feature: SSHFS mount of vagrant current working directory
       # Disable the default rsync
       config.vm.synced_folder '.', '/vagrant', disabled: true
 
-      # If using libvirt and nested virt (vagrant in vagrant) then 
+      # If using libvirt and nested virt (vagrant in vagrant) then
       # we need to use a different network than 192.168.121.0
       config.vm.provider :libvirt do |libvirt|
         libvirt.management_network_name = 'vagrant-libvirt-test'
@@ -42,5 +42,5 @@ Feature: SSHFS mount of vagrant current working directory
     Examples:
       | box      |
       | centos/7 |
-    
-    
+
+

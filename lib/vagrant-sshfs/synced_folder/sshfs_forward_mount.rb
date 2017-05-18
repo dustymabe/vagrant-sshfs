@@ -101,7 +101,7 @@ module VagrantPlugins
           if not opts.has_key?(:ssh_password) or not opts[:ssh_password]
             if not ssh_info.has_key?(:forward_agent) or not ssh_info[:forward_agent]
             prompt_for_password = true
-            end 
+            end
           end
 
         # Now do the prompt
