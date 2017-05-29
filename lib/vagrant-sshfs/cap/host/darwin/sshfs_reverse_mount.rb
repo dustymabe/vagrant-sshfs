@@ -30,7 +30,7 @@ module VagrantPlugins
           # opts contains something like:
           #   { :type=>:sshfs,
           #     :guestpath=>"/sharedfolder",
-          #     :hostpath=>"/guests/sharedfolder", 
+          #     :hostpath=>"/guests/sharedfolder",
           #     :disabled=>false
           #     :ssh_host=>"192.168.1.1"
           #     :ssh_port=>"22"
@@ -46,7 +46,7 @@ module VagrantPlugins
 
         protected
 
-        # Perform a mount by running an sftp-server on the vagrant host 
+        # Perform a mount by running an sftp-server on the vagrant host
         # and piping stdin/stdout to sshfs running inside the guest
         def self.sshfs_mount(machine, opts)
 
@@ -64,7 +64,7 @@ module VagrantPlugins
           opts[:sshfs_opts] = ' -o noauto_cache '# disable caching based on mtime
 
           # Add in some ssh options that are common to both mount methods
-          opts[:ssh_opts] = ' -o StrictHostKeyChecking=no '# prevent yes/no question 
+          opts[:ssh_opts] = ' -o StrictHostKeyChecking=no '# prevent yes/no question
           opts[:ssh_opts]+= ' -o ServerAliveInterval=30 '  # send keepalives
 
           # SSH connection options
@@ -88,12 +88,12 @@ module VagrantPlugins
           # The sshfs command to mount the guest directory on the host
           sshfs_cmd = "#{sshfs_path} #{ssh_opts} #{ssh_opts_append} "
           sshfs_cmd+= "#{sshfs_opts} #{sshfs_opts_append} "
-          sshfs_cmd+= "#{username}@#{host}:#{expanded_guest_path} #{hostpath}" 
+          sshfs_cmd+= "#{username}@#{host}:#{expanded_guest_path} #{hostpath}"
 
           # Log some information
           @@logger.debug("sshfs cmd: #{sshfs_cmd}")
 
-          machine.ui.info(I18n.t("vagrant.sshfs.actions.reverse_mounting_folder", 
+          machine.ui.info(I18n.t("vagrant.sshfs.actions.reverse_mounting_folder",
                           hostpath: hostpath, guestpath: expanded_guest_path))
 
           # Log STDERR to predictable files so that we can inspect them
@@ -104,7 +104,7 @@ module VagrantPlugins
 
           # Launch sshfs command to mount guest dir into the host
           if Vagrant::Util::Platform.windows?
-            # Need to handle Windows differently. Kernel.spawn fails to work, 
+            # Need to handle Windows differently. Kernel.spawn fails to work,
             # if the shell creating the process is closed.
             # See https://github.com/dustymabe/vagrant-sshfs/issues/31
             Process.create(:command_line => ssh_cmd,

@@ -1,6 +1,6 @@
-# This is a cucumber step definition. Cucumber scenarios become automated 
-# tests with the addition of what are called step definitions. A step 
-# definition is a block of code associated with one or more steps by a 
+# This is a cucumber step definition. Cucumber scenarios become automated
+# tests with the addition of what are called step definitions. A step
+# definition is a block of code associated with one or more steps by a
 # regular expression (or, in simple cases, a string).
 #
 # This is the step definition for the `And vagrant current working

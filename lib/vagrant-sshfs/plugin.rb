@@ -120,6 +120,35 @@ module VagrantPlugins
         VagrantPlugins::GuestSUSE::Cap::SSHFSClient
       end
 
+      guest_capability("freebsd", "sshfs_forward_mount_folder") do
+        require_relative "cap/guest/freebsd/sshfs_forward_mount"
+        VagrantPlugins::GuestFreeBSD::Cap::MountSSHFS
+      end
+
+      guest_capability("freebsd", "sshfs_forward_unmount_folder") do
+        require_relative "cap/guest/freebsd/sshfs_forward_mount"
+        VagrantPlugins::GuestFreeBSD::Cap::MountSSHFS
+      end
+
+      guest_capability("freebsd", "sshfs_forward_is_folder_mounted") do
+        require_relative "cap/guest/freebsd/sshfs_forward_mount"
+        VagrantPlugins::GuestFreeBSD::Cap::MountSSHFS
+      end
+
+      guest_capability("freebsd", "sshfs_get_absolute_path") do
+        require_relative "cap/guest/linux/sshfs_get_absolute_path"
+        VagrantPlugins::GuestLinux::Cap::SSHFSGetAbsolutePath
+      end
+
+      guest_capability("freebsd", "sshfs_install") do
+        require_relative "cap/guest/freebsd/sshfs_client"
+        VagrantPlugins::GuestFreeBSD::Cap::SSHFSClient
+      end
+
+      guest_capability("freebsd", "sshfs_installed") do
+        require_relative "cap/guest/freebsd/sshfs_client"
+        VagrantPlugins::GuestFreeBSD::Cap::SSHFSClient
+      end
     end
   end
 end

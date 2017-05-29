@@ -10,7 +10,7 @@ Vagrant.configure(2) do |config|
     # https://github.com/dustymabe/vagrant-sshfs/issues/44
     config.vm.synced_folder "/etc/", "/sbin/forward_slave_mount_sym_link_test/", type: "sshfs"
 
-    # Test a forward normal mount: 
+    # Test a forward normal mount:
     #     mounting a folder from a 3rd party host into guest
     config.vm.synced_folder "/etc/", "/tmp/forward_normal_mount_etc/", type: "sshfs",
         ssh_host: ENV['THIRD_PARTY_HOST'],
