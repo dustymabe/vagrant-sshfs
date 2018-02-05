@@ -4,7 +4,7 @@
 #
 # See more here: https://en.wikipedia.org/wiki/Cucumber_(software)
 #
-# Additoinally in the setup/env.rb file we set up Aruba. Aruba is used
+# Additionally in the setup/env.rb file we set up Aruba. Aruba is used
 # to define most of the basic step definitions that we use as part of
 # the Gherkin syntax in this file.
 #
