@@ -3,6 +3,7 @@ module VagrantPlugins
     module Cap
       class SSHFSClient
         def self.sshfs_install(machine)
+          machine.communicate.sudo("apt-get update")
           machine.communicate.sudo("apt-get install -y sshfs")
         end
 
