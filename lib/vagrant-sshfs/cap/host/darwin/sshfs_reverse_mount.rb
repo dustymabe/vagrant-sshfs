@@ -74,6 +74,13 @@ module VagrantPlugins
           ssh_opts+= ' -o "IdentityFile=\"' + machine.ssh_info[:private_key_path][0] + '\""'
           ssh_opts+= ' -o UserKnownHostsFile=/dev/null '
           ssh_opts+= ' -F /dev/null ' # Don't pick up options from user's config
+          if machine.ssh_info.key?(:private_key_path) and
+             machine.ssh_info[:private_key_path] and
+             machine.ssh_info[:private_key_path][0]
+             # Add IdentityFile since there is one
+             # Note the backslash escapes for IdentityFile - handles spaces in key path
+            ssh_opts+= ' -o "IdentityFile=\"' + machine.ssh_info[:private_key_path][0] + '\""'
+          end
 
           ssh_opts_append = opts[:ssh_opts_append].to_s # provided by user
 
