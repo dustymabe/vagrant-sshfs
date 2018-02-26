@@ -1,5 +1,6 @@
 require "log4r"
 require "vagrant/util/retryable"
+require "vagrant/util/platform"
 require "tempfile"
 
 # This is already done for us in lib/vagrant-sshfs.rb. We needed to
@@ -70,9 +71,16 @@ module VagrantPlugins
             comm.sudo("chmod 777 #{expanded_guest_path}")
           end
 
-          # Mount path information
-          hostpath = opts[:hostpath].dup
-          hostpath.gsub!("'", "'\\\\''")
+          # Mount path information: if arbitrary host mounting then
+          # take as is. If not, then expand the hostpath to the real
+          # path.
+          if opts[:ssh_host]
+              hostpath = opts[:hostpath].dup
+          else
+              hostpath = File.expand_path(opts[:hostpath], machine.env.root_path)
+              hostpath  = Vagrant::Util::Platform.fs_real_path(hostpath).to_s
+          end
+           
 
           # Add in some sshfs/fuse options that are common to both mount methods
           opts[:sshfs_opts] = ' -o allow_other ' # allow non-root users to access

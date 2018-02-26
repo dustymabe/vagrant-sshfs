@@ -20,6 +20,23 @@ module VagrantPlugins
         Command::SSHFS
       end
 
+      # The following two hooks allow us to workaround
+      # the config validations that assume the hostpaths
+      # are coming from our host machine. This is not the
+      # case for arbitrary host mounts.
+      action_hook("sshfs_hostpath_fixup") do |hook|
+        require_relative "action_hostpath_fixup"
+        hook.before(
+          Vagrant::Action::Builtin::ConfigValidate,
+          HostPathFix)
+      end
+      action_hook("sshfs_hostpath_unfix") do |hook|
+        require_relative "action_hostpath_fixup"
+        hook.after(
+          Vagrant::Action::Builtin::ConfigValidate,
+          HostPathUnfix)
+      end
+
       host_capability("linux", "sshfs_reverse_mount_folder") do
         require_relative "cap/host/linux/sshfs_reverse_mount"
         VagrantPlugins::HostLinux::Cap::MountSSHFS
