@@ -7,9 +7,6 @@
 #
 require 'bundler/gem_tasks'
 
-# cucumber/rake/task provides us with an easy way to call cucumber
-require 'cucumber/rake/task'
-
 # rake/clean provides CLEAN/CLOBBER
 # http://www.virtuouscode.com/2014/04/28/rake-part-6-clean-and-clobber/
 # CLEAN - list to let rake know what files can be cleaned up after build

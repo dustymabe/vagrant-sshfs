@@ -25,12 +25,7 @@ buildah run $ctr -- dnf install -y ${rpms[@]}
 buildah add $ctr './' $WORKINGDIR
 
 # Install bundler
-#   [1] when running with bundler 1.13.2 I had to comment out
-#       the vagrant-sshfs line in Gemfile because it errored out
-#       complaining about it being defined twice. Running with
-#       1.12.5 works fine.
-#   [2] because of [1] need to add `--version 1.12.5`
-buildah run $ctr -- gem install bundler --version 1.12.5
+buildah run $ctr -- gem install bundler
 
 # Install all needed gems
 buildah run $ctr -- bundle install --with plugins

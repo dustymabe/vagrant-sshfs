@@ -10,7 +10,6 @@ group :development do
 end
 
 group :plugins do
-  gem "vagrant-sshfs" , path: "."
   # Add vagrant-libvirt plugin here, otherwise you won't be able to
   # use libvirt as a provider when you execute `bundle exec vagrant up`
   gem "vagrant-libvirt" , '0.0.43'
