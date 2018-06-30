@@ -2,7 +2,7 @@
 # This directory is for testing the three different mount modes
 # that are supported by vagrant-sshfs
 
-# To test we will first create the directory on the machien where
+# To test we will first create the directory on the machine where
 # we will mount the guest /etc/ into the host (the reverse mount).
 
 mkdir /tmp/reverse_mount_etc

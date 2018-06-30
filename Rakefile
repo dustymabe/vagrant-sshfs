@@ -29,10 +29,3 @@ CLOBBER.include('pkg')
 task :init do
   FileUtils.mkdir_p 'build'
 end
-
-# Create new Cucumber::Rake::Task that will run Cucumber tests
-Cucumber::Rake::Task.new(:featuretests)
-
-# Define Rake::Task dependency - run :init before :featuretests
-task :featuretests => :init
-

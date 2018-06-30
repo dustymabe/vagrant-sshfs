@@ -1,8 +1,8 @@
 
+# point local system to git for vagrant-sshfs
 
-# Run viv tests
-cd /guests/sharedfolder/code/github.com/dustymabe/vagrant-sshfs/test/libvirt
-vagrant up
+# Run misc tests
+cd /guests/sharedfolder/code/github.com/dustymabe/vagrant-sshfs/test/misc
 follow README for running tests
 
 # Make sure to bump version in lib/vagrant-sshfs/version.rb and commit
@@ -36,8 +36,8 @@ verify with git verify-tag v1.2.0
 git push
 git push --tags 
 
-# Build with bundle exec rake build (inside viv VM)
-bundle exec rake build
+# Build with build.sh script (uses buildah)
+./bundle.sh
 
 # Sign the output
 gpg --armor --detach-sign pkg/vagrant-sshfs-1.2.0.gem
