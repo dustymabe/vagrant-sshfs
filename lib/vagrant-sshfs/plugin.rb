@@ -127,6 +127,16 @@ module VagrantPlugins
         VagrantPlugins::GuestArch::Cap::SSHFSClient
       end
 
+     guest_capability("alpine", "sshfs_installed") do
+        require_relative "cap/guest/alpine/sshfs_client"
+        VagrantPlugins::GuestAlpine::Cap::SSHFSClient
+      end
+
+      guest_capability("alpine", "sshfs_install") do
+        require_relative "cap/guest/alpine/sshfs_client"
+        VagrantPlugins::GuestAlpine::Cap::SSHFSClient
+      end
+
       guest_capability("suse", "sshfs_installed") do
         require_relative "cap/guest/suse/sshfs_client"
         VagrantPlugins::GuestSUSE::Cap::SSHFSClient
