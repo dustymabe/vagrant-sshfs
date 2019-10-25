@@ -1,7 +1,13 @@
-#!/bin/bash -x
+#!/bin/bash
 set -ex
 
-ctr=$(buildah from registry.fedoraproject.org/fedora:28)
+# If running as root execulte like:
+#   - ./build.sh
+# If running as non-root execute like:
+#   - buildah unshare ./build.sh
+
+
+ctr=$(buildah from registry.fedoraproject.org/fedora:31)
 
 rpms=(
   make gcc ruby ruby-devel redhat-rpm-config # for building gems

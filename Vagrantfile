@@ -3,7 +3,7 @@
 Vagrant.configure(2) do |config|
 
     config.ssh.insert_key = 'true'
-    config.vm.synced_folder "/guests/sharedfolder", "/sharedfolder", type: "sshfs"
+    config.vm.synced_folder "/var/b/shared", "/var/b/shared", type: "sshfs"
 
     config.vm.provider :libvirt do |domain|
       domain.memory = 4096
@@ -12,7 +12,7 @@ Vagrant.configure(2) do |config|
     end
 
     host = 'vagrant-sshfs-builder'
-    box  = 'fedora/28-cloud-base'
+    box  = 'fedora/31-cloud-base'
 
     config.vm.define host do | tmp |
         tmp.vm.hostname = host
@@ -21,7 +21,7 @@ Vagrant.configure(2) do |config|
     config.vm.provision "shell", inline: <<-SHELL
       dnf update -y 
       dnf install -y buildah
-      cd /sharedfolder/code/github.com/dustymabe/vagrant-sshfs
+      cd /var/b/shared/code/github.com/dustymabe/vagrant-sshfs
       ./build.sh
     SHELL
 end
