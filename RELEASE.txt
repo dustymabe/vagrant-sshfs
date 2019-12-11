@@ -37,7 +37,11 @@ git push
 git push --tags 
 
 # Build with build.sh script (uses buildah)
-./build.sh
+# We must run it in a buildah unshare session. Otherwise we get the error:
+#
+#   ++ buildah mount fedora-working-container
+#   cannot mount using driver overlay in rootless mode. You need to run it in a `buildah unshare` session
+buildah unshare ./build.sh
 
 # Sign the output
 gpg --armor --detach-sign pkg/vagrant-sshfs-1.2.0.gem
