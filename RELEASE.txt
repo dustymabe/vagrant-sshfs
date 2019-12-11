@@ -2,7 +2,7 @@
 # point local system to git for vagrant-sshfs
 
 # Run misc tests
-cd /guests/sharedfolder/code/github.com/dustymabe/vagrant-sshfs/test/misc
+cd /var/b/shared/code/github.com/dustymabe/vagrant-sshfs/test/misc
 follow README for running tests
 
 # Make sure to bump version in lib/vagrant-sshfs/version.rb and commit
@@ -37,7 +37,7 @@ git push
 git push --tags 
 
 # Build with build.sh script (uses buildah)
-./bundle.sh
+./build.sh
 
 # Sign the output
 gpg --armor --detach-sign pkg/vagrant-sshfs-1.2.0.gem
