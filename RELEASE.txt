@@ -8,30 +8,27 @@ follow README for running tests
 # Make sure to bump version in lib/vagrant-sshfs/version.rb and commit
 # DO NOT TAG YET
 
+# Craft a commit message for the tag.
+LASTTAG='v1.3.1'
+VERSION='1.3.2'
+NEWTAG="v${VERSION}"
+cat <<EOF > release-notes.txt
+This is release ${NEWTAG} of the vagrant-sshfs plugin.
 
-# Craft a commit message for the tag. View the commit message for
-  a previous tag by running: git tag -l -n100 v1.2.1
+Thanks to the following contributors for patches during this release: 
 
--> In vim add thanks to contributors - grab info with
-   git log --no-merges --pretty=format:"%h - %an - %s"
-   and
-   git log --no-merges --pretty=format:"%h - %ae - %s"
-   
-
--> In vim add commit log - grab with 
-   git log --no-merges --pretty=format:"%h %s"
-
--> In vim add release message - see previous tag for example
+$(git shortlog --no-merges --pretty=format:"%h %s" -e ${LASTTAG}..HEAD)
+EOF
 
 # After crafting message then install git-evtag and sign
 
-git-evtag sign vX.X.X
+git-evtag sign ${NEWTAG}
 
 
 close and type in password for signing
 
-verify with git-evtag verify v1.2.0
-verify with git verify-tag v1.2.0 
+verify with git-evtag verify ${NEWTAG}
+verify with git verify-tag ${NEWTAG}
 
 git push
 git push --tags 
@@ -43,20 +40,17 @@ git push --tags
 #   cannot mount using driver overlay in rootless mode. You need to run it in a `buildah unshare` session
 buildah unshare ./build.sh
 
-# Sign the output
-gpg --armor --detach-sign pkg/vagrant-sshfs-1.2.0.gem
-$ ls pkg/vagrant-sshfs-1.2.0.gem* 
-pkg/vagrant-sshfs-1.2.0.gem  pkg/vagrant-sshfs-1.2.0.gem.asc
+# Sign the output (This will create a .asc file)
+gpg2 --armor --detach-sign ./vagrant-sshfs-${VERSION}.gem
 
 # make tar.gz and zip files
-git archive --format=tar.gz v1.3.0 > vagrant-sshfs-1.3.0.tar.gz
-gpg --armor --detach-sign vagrant-sshfs-1.3.0.tar.gz 
-git archive --format=zip v1.3.0 > vagrant-sshfs-1.3.0.zip
-gpg --armor --detach-sign vagrant-sshfs-1.3.0.zip 
+git archive --format=tar.gz ${NEWTAG} > vagrant-sshfs-${VERSION}.tar.gz
+gpg2 --armor --detach-sign vagrant-sshfs-${VERSION}.tar.gz
+git archive --format=zip ${NEWTAG} > vagrant-sshfs-${VERSION}.zip
+gpg2 --armor --detach-sign vagrant-sshfs-${VERSION}.zip
 
 
 # Update release notes and upload files on github
 
 # push to rubygems with:
-gem push pkg/vagrant-sshfs-1.2.0.gem
-
+gem push ./vagrant-sshfs-${VERSION}.gem
