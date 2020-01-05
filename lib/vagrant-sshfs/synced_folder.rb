@@ -113,7 +113,7 @@ module VagrantPlugins
           ENV['PATH'] += ':/usr/libexec/openssh' # Linux (Red Hat Family)
           ENV['PATH'] += ':/usr/lib/openssh'     # Linux (Debian Family)
           ENV['PATH'] += ':/usr/lib/ssh'         # Linux (Arch Linux Family)
-          ENV['PATH'] += ':/usr/lib/misc'        # Linux (Gentoo Family)
+          ENV['PATH'] += ':/usr/lib64/misc'      # Linux (Gentoo Family)
           ENV['PATH'] += ':/usr/libexec/'        # Mac OS X
         end
 
