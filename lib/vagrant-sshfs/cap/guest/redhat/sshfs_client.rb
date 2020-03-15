@@ -3,7 +3,16 @@ module VagrantPlugins
     module Cap
       class SSHFSClient
         def self.sshfs_install(machine)
-          case machine.guest.capability("flavor")
+
+          rhel_version = machine.guest.capability("flavor")
+
+          # Handle the case where Vagrant doesn't yet know how to
+          # detect and return :rhel_8 https://github.com/hashicorp/vagrant/pull/11453
+          if Gem::Version.new(Vagrant::VERSION) < Gem::Version.new('2.2.8')
+            rhel_version = vagrant_lt_228_flavor_compat(machine)
+          end
+
+          case rhel_version
             when :rhel_8
               # No need to install epel. fuse-sshfs comes from the PowerTools repo
               # https://bugzilla.redhat.com/show_bug.cgi?id=1758884
@@ -29,6 +38,23 @@ module VagrantPlugins
 
         def self.epel_install(machine)
           machine.communicate.sudo("yum -y install epel-release")
+        end
+
+        def self.vagrant_lt_228_flavor_compat(machine)
+          # This is a compatibility function to handle RHEL8 for
+          # vagrant versions that didn't include:
+          # https://github.com/hashicorp/vagrant/pull/11453
+          output = ""
+          machine.communicate.sudo("cat /etc/redhat-release") do |_, data|
+            output = data
+          end
+          if output =~ /(CentOS|Red Hat Enterprise|Scientific|Cloud|Virtuozzo)\s*Linux( .+)? release 8/i
+            return :rhel_8
+          elsif output =~ /(CentOS|Red Hat Enterprise|Scientific|Cloud|Virtuozzo)\s*Linux( .+)? release 7/i
+            return :rhel_7
+          else
+            return :rhel
+          end
         end
       end
     end
