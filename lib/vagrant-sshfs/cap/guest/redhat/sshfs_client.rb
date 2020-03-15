@@ -3,13 +3,18 @@ module VagrantPlugins
     module Cap
       class SSHFSClient
         def self.sshfs_install(machine)
-          # Install epel rpm if not installed
-          if !epel_installed(machine)
-            epel_install(machine)
+          case machine.guest.capability("flavor")
+            when :rhel_8
+              # No need to install epel. fuse-sshfs comes from the PowerTools repo
+              # https://bugzilla.redhat.com/show_bug.cgi?id=1758884
+              machine.communicate.sudo("yum -y install --enablerepo=PowerTools fuse-sshfs")
+            when :rhel_7, :rhel # rhel7 and rhel6
+              # Install fuse-sshfs from epel
+              if !epel_installed(machine)
+                epel_install(machine)
+              end
+              machine.communicate.sudo("yum -y install fuse-sshfs")
           end
-
-          # Install sshfs (comes from epel repos)
-          machine.communicate.sudo("yum -y install fuse-sshfs")
         end
 
         def self.sshfs_installed(machine)
