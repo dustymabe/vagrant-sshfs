@@ -23,12 +23,7 @@ module VagrantPlugins
         end
 
         def self.epel_install(machine)
-          case machine.guest.capability("flavor")
-            when :rhel_7
-              machine.communicate.sudo("rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm")
-            when :rhel # rhel6
-              machine.communicate.sudo("rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm")
-          end
+          machine.communicate.sudo("yum -y install epel-release")
         end
       end
     end
