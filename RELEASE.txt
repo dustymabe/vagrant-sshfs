@@ -1,5 +1,8 @@
 
 # point local system to git for vagrant-sshfs
+    - cd /usr/share/vagrant/gems/gems
+    - sudo mv vagrant-sshfs-1.3.3 vsshfs133
+    - sudo ln -s /var/b/shared/code/github.com/dustymabe/vagrant-sshfs ./vagrant-sshfs-1.3.3
 
 # Run misc tests
 cd /var/b/shared/code/github.com/dustymabe/vagrant-sshfs/test/misc
