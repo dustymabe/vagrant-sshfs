@@ -8,7 +8,7 @@ Vagrant.configure(2) do |config|
 
     # Test a forward mount to a location that is a symbolic link
     # https://github.com/dustymabe/vagrant-sshfs/issues/44
-    config.vm.synced_folder "/etc/", "/sbin/forward_slave_mount_sym_link_test/", type: "sshfs"
+    config.vm.synced_folder "/etc/", "/var/run/forward_slave_mount_sym_link_test/", type: "sshfs"
 
     # Test a forward normal mount:
     #     mounting a folder from a 3rd party host into guest
