@@ -1,5 +1,5 @@
 module VagrantPlugins
-  module GuestCentos
+  module GuestCentOS
     module Cap
       class SSHFSClient
         def self.sshfs_install(machine)
