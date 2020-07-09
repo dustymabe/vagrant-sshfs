@@ -4,19 +4,16 @@ module VagrantPlugins
       class SSHFSClient
         def self.sshfs_install(machine)
 
-          rhel_version = machine.guest.capability("flavor")
-
-          # Handle the case where Vagrant doesn't yet know how to
-          # detect and return :rhel_8 https://github.com/hashicorp/vagrant/pull/11453
-          if Gem::Version.new(Vagrant::VERSION) < Gem::Version.new('2.2.8')
-            rhel_version = vagrant_lt_228_flavor_compat(machine)
-          end
-
-          case rhel_version
+          case machine.guest.capability("flavor")
             when :rhel_8
-              # No need to install epel. fuse-sshfs comes from the PowerTools repo
-              # https://bugzilla.redhat.com/show_bug.cgi?id=1758884
-              machine.communicate.sudo("yum -y install --enablerepo=PowerTools fuse-sshfs")
+              # fuse-sshfs isn't in EPEL8 and how to get it from RHEL repos
+              # without having to have the system subscribed is unclear:
+              # https://github.com/dustymabe/vagrant-sshfs/issues/108#issuecomment-601061947
+              # Using fuse-sshfs from EPEL7 works for now so let's just go with it.
+              # Do the install in such a way that the epel7 repo doesn't hang around
+              # on the system, which may have unintended consequences on RHEL8.
+              machine.communicate.sudo("rpm --import https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7")
+              machine.communicate.sudo("yum -y install fuse-sshfs --repofrompath=epel7,'http://download.fedoraproject.org/pub/epel/7/$basearch'")
             when :rhel_7, :rhel # rhel7 and rhel6
               # Install fuse-sshfs from epel
               if !epel_installed(machine)
@@ -37,23 +34,11 @@ module VagrantPlugins
         end
 
         def self.epel_install(machine)
-          machine.communicate.sudo("yum -y install epel-release")
-        end
-
-        def self.vagrant_lt_228_flavor_compat(machine)
-          # This is a compatibility function to handle RHEL8 for
-          # vagrant versions that didn't include:
-          # https://github.com/hashicorp/vagrant/pull/11453
-          output = ""
-          machine.communicate.sudo("cat /etc/redhat-release") do |_, data|
-            output = data
-          end
-          if output =~ /(CentOS|Red Hat Enterprise|Scientific|Cloud|Virtuozzo)\s*Linux( .+)? release 8/i
-            return :rhel_8
-          elsif output =~ /(CentOS|Red Hat Enterprise|Scientific|Cloud|Virtuozzo)\s*Linux( .+)? release 7/i
-            return :rhel_7
-          else
-            return :rhel
+          case machine.guest.capability("flavor")
+            when :rhel_7
+              machine.communicate.sudo("rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm")
+            when :rhel # rhel6
+              machine.communicate.sudo("rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm")
           end
         end
       end

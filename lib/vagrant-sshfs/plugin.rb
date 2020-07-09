@@ -97,6 +97,16 @@ module VagrantPlugins
         VagrantPlugins::GuestRedHat::Cap::SSHFSClient
       end
 
+      guest_capability("centos", "sshfs_installed") do
+        require_relative "cap/guest/centos/sshfs_client"
+        VagrantPlugins::GuestCentOS::Cap::SSHFSClient
+      end
+
+      guest_capability("centos", "sshfs_install") do
+        require_relative "cap/guest/centos/sshfs_client"
+        VagrantPlugins::GuestCentOS::Cap::SSHFSClient
+      end
+
       guest_capability("fedora", "sshfs_installed") do
         require_relative "cap/guest/fedora/sshfs_client"
         VagrantPlugins::GuestFedora::Cap::SSHFSClient
