@@ -6,6 +6,11 @@ build
 Gemfile.lock
 .ruby-gemset
 .ruby-version
+.bundle
+
+# simplecov coverage reports
+coverage/
+.rspec_status
 
 # .vagrant dirs
 .vagrant
@@ -13,5 +18,3 @@ Gemfile.lock
 # IDE config files
 .idea
 *.iml
-
-

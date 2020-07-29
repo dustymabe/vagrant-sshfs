@@ -1,0 +1,39 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+puts "Is vagrant-sshfs installed? #{Vagrant.has_plugin?('vagrant-sshfs')}"
+
+Vagrant.configure("2") do |config|
+
+  config.vm.define 'default' do |config|
+    config.vm.box = "centos/7"
+    config.vm.hostname = "localhost.localdomain"
+
+    synced_folder_disabled = false
+    synced_folder_sshfs_opts_append = "-o cache=no -o nonempty"
+
+    # Vagrant >= 1.7 wants to replace the insecure_key with public boxes, but
+    # there is a bug in that implentation so we just allow the insecure_key
+    # anyway.
+    config.ssh.insert_key = false
+    config.vm.box_check_update = false
+
+
+    config.vm.synced_folder ".", "/vagrant",
+      disabled: synced_folder_disabled,
+      type: "sshfs",
+      ssh_opts_append: "-o Compression=yes -o ControlPersist=60s -o ControlMaster=auto",
+      sshfs_opts_append: synced_folder_sshfs_opts_append
+
+    config.vm.provider "virtualbox" do |vb|
+      #  # Display the VirtualBox GUI when booting the machine
+      #  vb.gui = true
+
+      vb.cpus = "1"
+      vb.memory = "768"
+
+      vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+      vb.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
+    end
+  end
+end

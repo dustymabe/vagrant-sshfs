@@ -1,5 +1,7 @@
+require "etc"
 require "log4r"
 
+require "vagrant"
 require "vagrant/util/platform"
 require "vagrant/util/which"
 
@@ -82,13 +84,13 @@ module VagrantPlugins
         ssh_info = machine.ssh_info
 
         # Detect the username of the current user
-        username = `whoami`.strip
+        username = Etc.getlogin.strip
 
         # If no username provided then default to the current
         # user that is executing vagrant
-          if not opts.has_key?(:ssh_username) or not opts[:ssh_username]
-            opts[:ssh_username] = username
-          end
+        if not opts.has_key?(:ssh_username) or not opts[:ssh_username]
+          opts[:ssh_username] = username
+        end
 
         # Check to see if we need to prompt the user for a password.
         # We will prompt if:
