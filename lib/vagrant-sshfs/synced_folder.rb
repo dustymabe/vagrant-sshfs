@@ -110,6 +110,7 @@ module VagrantPlugins
             ENV['PATH'] += ';C:\cygwin64\usr\sbin'
           end
         else
+          ENV['PATH'] += ':/usr/libexec/ssh'     # Linux (openSUSE/SUSE Family)
           ENV['PATH'] += ':/usr/libexec/openssh' # Linux (Red Hat Family)
           ENV['PATH'] += ':/usr/lib/openssh'     # Linux (Debian Family)
           ENV['PATH'] += ':/usr/lib/ssh'         # Linux (Arch Linux Family)
