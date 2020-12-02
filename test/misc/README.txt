@@ -13,6 +13,11 @@ export THIRD_PARTY_HOST='192.168.121.73'
 export THIRD_PARTY_HOST_USER='vagrant'                                                                                                                                                 
 export THIRD_PARTY_HOST_PASS='vagrant'
 
+# Open an extra file descriptor to test it is not passed onto child processes
+# https://github.com/dustymabe/vagrant-sshfs/issues/120
+tmpfile=$(mktemp)
+exec {extra_fd}<> "$tmpfile"
+
 # Next vagrant up - will do 4 mounts
 #  - slave
 #  - slave with sym link
@@ -34,3 +39,9 @@ Testing reverse mount!
 # We are printing out the machine-id under each mount. The first two
 should be the same, because they are from the same machine. The last
 two should be different.
+
+# Close our file descriptor. No other process should be using it
+exec {extra_fd}>&-
+if sudo lsof -wn -d $extra_fd | grep -q "$tmpfile"; then
+  echo "Failure: there are processes running that hold an inherited file descriptor"
+fi
