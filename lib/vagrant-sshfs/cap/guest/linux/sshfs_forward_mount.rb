@@ -288,8 +288,8 @@ module VagrantPlugins
                            :thread_inherit => true,
                            :startup_info => {:stdin => w1, :stdout => r2, :stderr => f2})
           else
-            p1 = spawn(sftp_server_cmd, :out => w2, :in => r1, :err => f1, :pgroup => true, :close_others=>true)
-            p2 = spawn(ssh_cmd,         :out => w1, :in => r2, :err => f2, :pgroup => true, :close_others=>true)
+            p1 = spawn(sftp_server_cmd, :out => w2, :in => r1, :err => f1, :pgroup => true, :close_others => true)
+            p2 = spawn(ssh_cmd,         :out => w1, :in => r2, :err => f2, :pgroup => true, :close_others => true)
 
             # Detach from the processes so they will keep running
             Process.detach(p1)

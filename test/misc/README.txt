@@ -42,6 +42,6 @@ two should be different.
 
 # Close our file descriptor. No other process should be using it
 exec {extra_fd}>&-
-if sudo lsof -wn -d $extra_fd | grep -q "$tmpfile"; then
+if lsof -wn -d $extra_fd | grep "$tmpfile"; then
   echo "Failure: there are processes running that hold an inherited file descriptor"
 fi

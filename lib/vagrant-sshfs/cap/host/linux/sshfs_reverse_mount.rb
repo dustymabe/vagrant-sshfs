@@ -117,7 +117,7 @@ module VagrantPlugins
                            :thread_inherit => true,
                            :startup_info => {:stdin => w2, :stdout => r1, :stderr => f1})
           else
-            p1 = spawn(sshfs_cmd,   :out => f1, :err => f1, :pgroup => true)
+            p1 = spawn(sshfs_cmd,   :out => f1, :err => f1, :pgroup => true, :close_others => true)
             Process.detach(p1) # Detach so process will keep running
           end
 
