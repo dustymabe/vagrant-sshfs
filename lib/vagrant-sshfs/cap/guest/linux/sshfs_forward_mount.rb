@@ -86,6 +86,29 @@ module VagrantPlugins
           opts[:sshfs_opts] = ' -o allow_other ' # allow non-root users to access
           opts[:sshfs_opts]+= ' -o noauto_cache '# disable caching based on mtime
 
+          if opts[:owner]
+            machine.communicate.execute("id -u #{opts[:owner]}") do |type, data|
+              if type == :stdout
+                uid = data.strip!
+                opts[:sshfs_opts]+= " -o uid=#{uid} "
+              elsif type == :stderr
+                machine.ui.error(I18n.t("vagrant.sshfs.errors.failed_to_find_id"))
+              end
+            end
+          end
+
+          if opts[:group]
+            machine.communicate.execute("id -g #{opts[:group]}") do |type, data|
+              if type == :stdout
+                gid = data.strip!
+                opts[:sshfs_opts]+= " -o gid=#{gid} "
+              elsif type == :stderr
+                machine.ui.error(I18n.t("vagrant.sshfs.errors.failed_to_find_id"))
+              end
+            end
+          end
+
+
           # Add in some ssh options that are common to both mount methods
           opts[:ssh_opts] = ' -o StrictHostKeyChecking=no '# prevent yes/no question
           opts[:ssh_opts]+= ' -o ServerAliveInterval=30 '  # send keepalives
