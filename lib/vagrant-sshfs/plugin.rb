@@ -186,6 +186,32 @@ module VagrantPlugins
         require_relative "cap/guest/freebsd/sshfs_client"
         VagrantPlugins::GuestFreeBSD::Cap::SSHFSClient
       end
+
+      guest_capability("cygwin", "sshfs_forward_mount_folder") do
+        require_relative "cap/guest/cygwin/sshfs_forward_mount"
+        VagrantPlugins::GuestCygwin::Cap::MountSSHFS
+      end
+
+      guest_capability("cygwin", "sshfs_forward_unmount_folder") do
+        require_relative "cap/guest/cygwin/sshfs_forward_mount"
+        VagrantPlugins::GuestCygwin::Cap::MountSSHFS
+      end
+
+      guest_capability("cygwin", "sshfs_forward_is_folder_mounted") do
+        require_relative "cap/guest/cygwin/sshfs_forward_mount"
+        VagrantPlugins::GuestCygwin::Cap::MountSSHFS
+      end
+
+      guest_capability("cygwin", "sshfs_get_absolute_path") do
+        require_relative "cap/guest/linux/sshfs_get_absolute_path"
+        VagrantPlugins::GuestLinux::Cap::SSHFSGetAbsolutePath
+      end
+
+      guest_capability("cygwin", "sshfs_installed") do
+        require_relative "cap/guest/cygwin/sshfs_client"
+        VagrantPlugins::GuestCygwin::Cap::SSHFSClient
+      end
+
     end
   end
 end
