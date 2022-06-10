@@ -10,7 +10,7 @@ module VagrantPlugins
               # https://bugzilla.redhat.com/show_bug.cgi?id=1758884
               # https://github.com/dustymabe/vagrant-sshfs/issues/123
               machine.communicate.sudo("yum -y install --enablerepo=powertools fuse-sshfs")
-            when :centos_7, :centos # centos7 and centos6
+            when :centos_9, :centos_7, :centos # centos{9,7,6}
               # Install fuse-sshfs from epel
               if !epel_installed(machine)
                 epel_install(machine)

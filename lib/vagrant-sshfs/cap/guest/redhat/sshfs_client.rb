@@ -14,7 +14,7 @@ module VagrantPlugins
               # on the system, which may have unintended consequences on RHEL8.
               machine.communicate.sudo("rpm --import https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7")
               machine.communicate.sudo("yum -y install fuse-sshfs --repofrompath=epel7,'http://download.fedoraproject.org/pub/epel/7/$basearch'")
-            when :rhel_7, :rhel # rhel7 and rhel6
+            when :rhel_9, :rhel_7, :rhel # rhel{9,7,6}
               # Install fuse-sshfs from epel
               if !epel_installed(machine)
                 epel_install(machine)
@@ -35,6 +35,8 @@ module VagrantPlugins
 
         def self.epel_install(machine)
           case machine.guest.capability("flavor")
+            when :rhel_9
+              machine.communicate.sudo("rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm")
             when :rhel_7
               machine.communicate.sudo("rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm")
             when :rhel # rhel6
