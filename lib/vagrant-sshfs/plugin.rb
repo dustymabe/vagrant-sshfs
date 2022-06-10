@@ -117,6 +117,16 @@ module VagrantPlugins
         VagrantPlugins::GuestRocky::Cap::SSHFSClient
       end
 
+      guest_capability("alma", "sshfs_installed") do
+        require_relative "cap/guest/alma/sshfs_client"
+        VagrantPlugins::GuestAlma::Cap::SSHFSClient
+      end
+
+      guest_capability("alma", "sshfs_install") do
+        require_relative "cap/guest/alma/sshfs_client"
+        VagrantPlugins::GuestAlma::Cap::SSHFSClient
+      end
+
       guest_capability("fedora", "sshfs_installed") do
         require_relative "cap/guest/fedora/sshfs_client"
         VagrantPlugins::GuestFedora::Cap::SSHFSClient
