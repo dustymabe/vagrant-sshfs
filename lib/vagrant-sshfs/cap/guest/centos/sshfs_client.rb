@@ -4,6 +4,19 @@ module VagrantPlugins
       class SSHFSClient
         def self.sshfs_install(machine)
 
+          # Until a newer version of Vagrant ships with https://github.com/hashicorp/vagrant/pull/12785
+          # we need to handle the case where Alma or Rocky end up here
+          if machine.communicate.test("grep 'VERSION_ID=\"8' /etc/os-release")
+              machine.communicate.sudo("yum -y install --enablerepo=powertools fuse-sshfs")
+              return
+          elsif machine.communicate.test("grep 'VERSION_ID=\"9' /etc/os-release")
+              if !epel_installed(machine)
+                epel_install(machine)
+              end
+              machine.communicate.sudo("yum -y install fuse-sshfs")
+              return
+          end
+
           case machine.guest.capability("flavor")
             when :centos_8
               # No need to install epel. fuse-sshfs comes from the powertools repo

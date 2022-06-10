@@ -40,7 +40,13 @@ module VagrantPlugins
             when :rhel_7
               machine.communicate.sudo("rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm")
             when :rhel # rhel6
-              machine.communicate.sudo("rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm")
+              # Until a newer version of Vagrant ships with https://github.com/hashicorp/vagrant/pull/12785
+              # we need to handle the case where Alma 9 and RHEL 9 end up here.
+              if machine.communicate.test("grep 'VERSION_ID=\"9' /etc/os-release")
+                machine.communicate.sudo("rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm")
+              else
+                machine.communicate.sudo("rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm")
+              end
           end
         end
       end
