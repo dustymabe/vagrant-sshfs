@@ -4,22 +4,41 @@ Vagrant.configure(2) do |config|
 
     # Test a forward slave mount:
     #   mounting /etc/ from the vagrant host into the guest
-    config.vm.synced_folder "/etc/", "/tmp/forward_slave_mount_etc/", type: "sshfs"
+    config.vm.synced_folder "/etc/", "/tmp/forward_slave_mount_etc/",
+        type: "sshfs",
+        mount_options: ['ro']
+
+    # Test a forward slave with owner/group info:
+    #   mounting /etc/ from the vagrant host into the guest
+    config.vm.synced_folder "/etc/", "/tmp/forward_slave_mount_etc_uid_gid/",
+        type: "sshfs",
+        mount_options: ['ro', 'default_permissions'],
+        owner: "root",
+        group: "wheel"
 
     # Test a forward mount to a location that is a symbolic link
     # https://github.com/dustymabe/vagrant-sshfs/issues/44
-    config.vm.synced_folder "/etc/", "/var/run/forward_slave_mount_sym_link_test/", type: "sshfs"
+    config.vm.synced_folder "/etc/", "/var/run/forward_slave_mount_sym_link_test/",
+        type: "sshfs",
+        mount_options: ['ro']
 
     # Test a forward normal mount:
     #     mounting a folder from a 3rd party host into guest
-    config.vm.synced_folder "/etc/", "/tmp/forward_normal_mount_etc/", type: "sshfs",
+    config.vm.synced_folder "/etc/", "/tmp/forward_normal_mount_etc/",
+        type: "sshfs",
         ssh_host: ENV['THIRD_PARTY_HOST'],
         ssh_username: ENV['THIRD_PARTY_HOST_USER'],
-        ssh_password: ENV['THIRD_PARTY_HOST_PASS']
+        ssh_password: ENV['THIRD_PARTY_HOST_PASS'],
+        mount_options: ['ro']
 
-    # Test a reverse mount:
+    # Test a reverse mount with owner/group
     # mounting /etc/ from vagrant guest into vagrant host
-    config.vm.synced_folder "/tmp/reverse_mount_etc/", "/etc", type: "sshfs", reverse: true
+    config.vm.synced_folder "/tmp/reverse_mount_etc_uid_gid/", "/etc",
+        type: "sshfs",
+        reverse: true,
+        owner: "root",
+        group: "wheel",
+        mount_options: ['ro']
 
     host = 'sshfs-tests'
     box  = 'fedora/34-cloud-base'

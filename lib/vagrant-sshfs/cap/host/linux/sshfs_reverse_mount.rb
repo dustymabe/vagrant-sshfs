@@ -81,9 +81,50 @@ module VagrantPlugins
 
           ssh_opts_append = opts[:ssh_opts_append].to_s # provided by user
 
+          # Support for user provided mount_options, owner, group
+          # https://github.com/hashicorp/vagrant/blob/2c3397c46851ef29a3589bf3214a3eee12da8484/website/content/docs/synced-folders/basic_usage.mdx#options
+          mount_options = opts.fetch(:mount_options, [])
+          if (opts.has_key?(:owner) and opts[:owner]) or
+             (opts.has_key?(:group) and opts[:group])
+            # Find the `id` command on the system and set the error class
+            id_command = Vagrant::Util::Which.which('id')
+            getent_command = Vagrant::Util::Which.which('getent')
+            error_class = VagrantPlugins::SyncedFolderSSHFS::Errors::SSHFSFindUIDGIDFailed
+            # Identify the uid
+            cmd = "#{id_command} -u #{opts[:owner]}"
+            result = Vagrant::Util::Subprocess.execute(*cmd.split())
+            if result.exit_code != 0
+              raise error_class, command: cmd, stdout: result.stdout, stderr: result.stderr
+            end
+            mount_uid = result.stdout.chomp
+            # Identify the gid. If a group was provided use that otherwise use
+            # the group detected with the detected user id.
+            if opts.has_key?(:group) and opts[:group]
+              cmd = "#{getent_command} group #{opts[:group]}"
+              result = Vagrant::Util::Subprocess.execute(*cmd.split())
+              if result.exit_code != 0
+                raise error_class, command: cmd, stdout: result.stdout, stderr: result.stderr
+              end
+              mount_gid = result.stdout.split(':').at(2).to_s.chomp
+            else
+              cmd = "#{id_command} -g #{mount_uid}"
+              result = Vagrant::Util::Subprocess.execute(*cmd.split())
+              if result.exit_code != 0
+                raise error_class, command: cmd, stdout: result.stdout, stderr: result.stderr
+              end
+              mount_gid = result.stdout.chomp
+            end
+            # Add them to the mount options
+            mount_options.append("uid=#{mount_uid}")
+            mount_options.append("gid=#{mount_gid}")
+          end
+
           # SSHFS executable options
           sshfs_opts = opts[:sshfs_opts]
           sshfs_opts_append = opts[:sshfs_opts_append].to_s # provided by user
+          if not mount_options.empty?()
+            sshfs_opts_append+= ' -o ' + mount_options.join(',') + ' '
+          end
 
           username = machine.ssh_info[:username]
           host = machine.ssh_info[:host]

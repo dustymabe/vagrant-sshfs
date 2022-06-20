@@ -93,3 +93,17 @@ en:
           Stderr from the command:
 
           %{stderr}
+        find_uid_gid_failed: |-
+          Attempting to find the UID/GID failed.
+
+          The command and output are:
+
+          %{command}
+
+          Stdout from the command:
+
+          %{stdout}
+
+          Stderr from the command:
+
+          %{stderr}

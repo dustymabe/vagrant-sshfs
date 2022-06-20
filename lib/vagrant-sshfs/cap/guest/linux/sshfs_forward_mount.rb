@@ -2,6 +2,7 @@ require "log4r"
 require "vagrant/util/retryable"
 require "vagrant/util/platform"
 require "tempfile"
+require Vagrant.source_root.join("plugins/synced_folders/unix_mount_helpers")
 
 # This is already done for us in lib/vagrant-sshfs.rb. We needed to
 # do it there before Process.uid is called the first time by Vagrant
@@ -15,6 +16,7 @@ module VagrantPlugins
     module Cap
       class MountSSHFS
         extend Vagrant::Util::Retryable
+        extend VagrantPlugins::SyncedFolder::UnixMountHelpers
         @@logger = Log4r::Logger.new("vagrant::synced_folders::sshfs_mount")
 
         def self.list_mounts_command
@@ -80,7 +82,25 @@ module VagrantPlugins
               hostpath = File.expand_path(opts[:hostpath], machine.env.root_path)
               hostpath  = Vagrant::Util::Platform.fs_real_path(hostpath).to_s
           end
-           
+
+          # Support for user provided mount_options, owner, group
+          # https://github.com/hashicorp/vagrant/blob/2c3397c46851ef29a3589bf3214a3eee12da8484/website/content/docs/synced-folders/basic_usage.mdx#options
+          mount_options = opts.fetch(:mount_options, [])
+          # Determine owner/group info to use
+          if (opts.has_key?(:owner) and opts[:owner]) or
+             (opts.has_key?(:group) and opts[:group])
+            detected_ids = detect_owner_group_ids(
+                machine, expanded_guest_path, mount_options, opts)
+            mount_uid = detected_ids[:uid]
+            mount_gid = detected_ids[:gid]
+            mount_options.append("uid=#{mount_uid}")
+            mount_options.append("gid=#{mount_gid}")
+          end
+          # Combine mount_options into sshfs_opts_append (also user provided)
+          if not mount_options.empty?()
+            opts[:sshfs_opts_append] =
+              opts[:sshfs_opts_append].to_s + ' -o ' + mount_options.join(',') + ' '
+          end
 
           # Add in some sshfs/fuse options that are common to both mount methods
           opts[:sshfs_opts] = ' -o allow_other ' # allow non-root users to access
