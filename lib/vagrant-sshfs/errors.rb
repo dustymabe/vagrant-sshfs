@@ -37,10 +37,6 @@ module VagrantPlugins
       class SSHFSGetAbsolutePathFailed < SSHFSError
         error_key(:get_absolute_path_failed)
       end
-
-      class SSHFSFindUIDGIDFailed < SSHFSError
-        error_key(:find_uid_gid_failed)
-      end
     end
   end
 end

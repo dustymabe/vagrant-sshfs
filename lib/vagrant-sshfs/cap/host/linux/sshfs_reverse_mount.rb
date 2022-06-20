@@ -1,3 +1,4 @@
+require "etc"
 require "log4r"
 require "vagrant/util/retryable"
 require "tempfile"
@@ -92,33 +93,18 @@ module VagrantPlugins
           mount_options = opts.fetch(:mount_options, [])
           if (opts.has_key?(:owner) and opts[:owner]) or
              (opts.has_key?(:group) and opts[:group])
-            # Find the `id` command on the system and set the error class
-            id_command = Vagrant::Util::Which.which('id')
-            getent_command = Vagrant::Util::Which.which('getent')
-            error_class = VagrantPlugins::SyncedFolderSSHFS::Errors::SSHFSFindUIDGIDFailed
             # Identify the uid
-            cmd = "#{id_command} -u #{opts[:owner]}"
-            result = Vagrant::Util::Subprocess.execute(*cmd.split())
-            if result.exit_code != 0
-              raise error_class, command: cmd, stdout: result.stdout, stderr: result.stderr
+            if opts.has_key?(:owner) and opts[:owner]
+              mount_uid = Etc::getpwnam(opts[:owner]).uid
+            else
+              mount_uid = Etc::getpwnam(Etc.getlogin).uid
             end
-            mount_uid = result.stdout.chomp
             # Identify the gid. If a group was provided use that otherwise use
             # the group detected with the detected user id.
             if opts.has_key?(:group) and opts[:group]
-              cmd = "#{getent_command} group #{opts[:group]}"
-              result = Vagrant::Util::Subprocess.execute(*cmd.split())
-              if result.exit_code != 0
-                raise error_class, command: cmd, stdout: result.stdout, stderr: result.stderr
-              end
-              mount_gid = result.stdout.split(':').at(2).to_s.chomp
+              mount_gid = Etc::getgrnam(opts[:group]).gid
             else
-              cmd = "#{id_command} -g #{mount_uid}"
-              result = Vagrant::Util::Subprocess.execute(*cmd.split())
-              if result.exit_code != 0
-                raise error_class, command: cmd, stdout: result.stdout, stderr: result.stderr
-              end
-              mount_gid = result.stdout.chomp
+              mount_gid = Etc::getpwnam(Etc.getlogin).gid
             end
             # Add them to the mount options
             mount_options.append("uid=#{mount_uid}")

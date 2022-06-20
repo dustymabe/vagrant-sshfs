@@ -1,3 +1,4 @@
+require "etc"
 require "log4r"
 require "vagrant/util/retryable"
 require "tempfile"
@@ -88,9 +89,35 @@ module VagrantPlugins
 
           ssh_opts_append = opts[:ssh_opts_append].to_s # provided by user
 
+          # Support for user provided mount_options, owner, group
+          # https://github.com/hashicorp/vagrant/blob/2c3397c46851ef29a3589bf3214a3eee12da8484/website/content/docs/synced-folders/basic_usage.mdx#options
+          mount_options = opts.fetch(:mount_options, [])
+          if (opts.has_key?(:owner) and opts[:owner]) or
+             (opts.has_key?(:group) and opts[:group])
+            # Identify the uid
+            if opts.has_key?(:owner) and opts[:owner]
+              mount_uid = Etc::getpwnam(opts[:owner]).uid
+            else
+              mount_uid = Etc::getpwnam(Etc.getlogin).uid
+            end
+            # Identify the gid. If a group was provided use that otherwise use
+            # the group detected with the detected user id.
+            if opts.has_key?(:group) and opts[:group]
+              mount_gid = Etc::getgrnam(opts[:group]).gid
+            else
+              mount_gid = Etc::getpwnam(Etc.getlogin).gid
+            end
+            # Add them to the mount options
+            mount_options.append("uid=#{mount_uid}")
+            mount_options.append("gid=#{mount_gid}")
+          end
+
           # SSHFS executable options
           sshfs_opts = opts[:sshfs_opts]
           sshfs_opts_append = opts[:sshfs_opts_append].to_s # provided by user
+          if not mount_options.empty?()
+            sshfs_opts_append+= ' -o ' + mount_options.join(',') + ' '
+          end
 
           username = machine.ssh_info[:username]
           host = machine.ssh_info[:host]
