@@ -1,7 +1,7 @@
 #!/bin/bash -x
 set -ex
 
-ctr=$(buildah from registry.fedoraproject.org/fedora:36)
+ctr=$(buildah from registry.fedoraproject.org/fedora:35)
 
 rpms=(
   make gcc ruby ruby-devel redhat-rpm-config # for building gems
