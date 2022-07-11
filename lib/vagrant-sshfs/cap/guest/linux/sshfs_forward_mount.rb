@@ -23,6 +23,21 @@ module VagrantPlugins
           "cat /proc/mounts"
         end
 
+        def self.sshfs_command
+          "sudo -E sshfs"
+        end
+
+        def self.get_umount_command(expanded_guest_path)
+          return "umount #{expanded_guest_path}"
+        end
+
+        def self.create_mount_point(machine, expanded_guest_path)
+          machine.communicate.tap do |comm|
+            comm.sudo("mkdir -p #{expanded_guest_path}")
+            comm.sudo("chmod 777 #{expanded_guest_path}")
+          end
+        end
+
         def self.sshfs_forward_is_folder_mounted(machine, opts)
           mounted = false
           guest_path = opts[:guestpath]
@@ -68,10 +83,7 @@ module VagrantPlugins
             :shell_expand_guest_path, opts[:guestpath])
 
           # Create the mountpoint inside the guest
-          machine.communicate.tap do |comm|
-            comm.sudo("mkdir -p #{expanded_guest_path}")
-            comm.sudo("chmod 777 #{expanded_guest_path}")
-          end
+          self.create_mount_point(machine, expanded_guest_path)
 
           # Mount path information: if arbitrary host mounting then
           # take as is. If not, then expand the hostpath to the real
@@ -140,7 +152,7 @@ module VagrantPlugins
 
           # Build up the command and connect
           error_class = VagrantPlugins::SyncedFolderSSHFS::Errors::SSHFSUnmountFailed
-          cmd = "umount #{expanded_guest_path}"
+          cmd = self.get_umount_command(expanded_guest_path)
           machine.communicate.sudo(
             cmd, error_class: error_class, error_key: :unmount_failed)
         end
@@ -230,7 +242,8 @@ module VagrantPlugins
 
           # The remote sshfs command that will run (in slave mode)
           sshfs_opts+= ' -o slave '
-          sshfs_cmd = "sudo -E sshfs :#{hostpath} #{expanded_guest_path}"
+          sshfs_cmd = self.sshfs_command
+          sshfs_cmd += " :#{hostpath} #{expanded_guest_path}"
           sshfs_cmd+= sshfs_opts + ' ' + sshfs_opts_append + ' '
 
           # The ssh command to connect to guest and then launch sshfs
