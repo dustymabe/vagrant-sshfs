@@ -28,7 +28,7 @@ module VagrantPlugins
               if !epel_installed(machine)
                 epel_install(machine)
               end
-              machine.communicate.sudo("yum -y install fuse-sshfs")
+              machine.communicate.sudo("yum -y --enablerepo=epel install fuse-sshfs")
           end
         end
 
