@@ -118,7 +118,7 @@ module VagrantPlugins
             sshfs_opts_append+= ' -o ' + mount_options.join(',') + ' '
           end
 
-          username = machine.ssh_info[:username]
+          username = opts.key?(:ssh_username) ? opts[:ssh_username] : machine.ssh_info[:username]
           host = machine.ssh_info[:host]
 
 
