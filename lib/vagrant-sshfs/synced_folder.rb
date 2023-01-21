@@ -126,6 +126,12 @@ module VagrantPlugins
         ENV['PATH'] = oldpath
         return exepath
       end
+
+      # Enable rsync synced folders within WSL when in use
+      # on non-DrvFs file systems
+      def self.wsl_allow_non_drvfs?
+        true
+      end
     end
   end
 end
