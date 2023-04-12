@@ -24,7 +24,7 @@ module VagrantPlugins
         end
 
         def self.sshfs_installed(machine)
-          machine.communicate.test("rpm -q fuse-sshfs")
+          machine.communicate.test("rpm -q --whatprovides fuse-sshfs")
         end
 
         protected
